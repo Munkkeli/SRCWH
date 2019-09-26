@@ -36,17 +36,6 @@ class MainActivity : AppCompatActivity() {
         // if the user object is null, then there was no data. (usually meaning first time user)
         user = getUserData()
 
-        if (user == null) {
-            Log.d("MAIN", "Opening login")
-
-            // TODO app should decide on startup if login activity should be run
-            val intent = Intent(this, LoginActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK  and Intent.FLAG_ACTIVITY_NEW_TASK
-            startActivity(intent)
-            finish()
-           // changeFragment(LoginFragment { error, result -> })
-        }
-
         changeFragment(ScanFragment())
 
         // setup the nfc reader
@@ -54,8 +43,6 @@ class MainActivity : AppCompatActivity() {
 
         // if the application was opened via nfc reader, this gets called
         if(intent != null){ processIncomingIntent(intent)}
-
-
     }
 
     override fun onResume() {
@@ -114,7 +101,6 @@ class MainActivity : AppCompatActivity() {
         Snackbar.make(coordinator, stringInt, Snackbar.LENGTH_LONG).show()
     }
 
-
     private fun changeFragment(fragment: Fragment, inAnim: Int = 0, outAnim: Int = 0){
         val fManager = supportFragmentManager
         val fTransaction = fManager.beginTransaction()
@@ -130,6 +116,4 @@ class MainActivity : AppCompatActivity() {
 
         fTransaction.commit()
     }
-
-
 }

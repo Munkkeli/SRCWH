@@ -13,7 +13,7 @@ class LoginActivity : AppCompatActivity() {
 
         Log.d("LOGIN", "Activity created!")
 
-        changeFragment(LoginFragment { token, user ->  handleLogin(token, user) })
+        changeFragment(LoginFragment { token, user ->  handleLogin(token, user) },android.R.anim.slide_in_left, android.R.anim.slide_out_right)
     }
 
     private fun handleLogin(token: String, user: LoginUser) {
@@ -26,7 +26,7 @@ class LoginActivity : AppCompatActivity() {
 
                 dbUser.currentGroup = group
                 saveUserToDB(dbUser)
-            })
+            }, android.R.anim.slide_in_left, android.R.anim.slide_out_right)
         } else {
             dbUser.currentGroup = user.groupList[0]
             saveUserToDB(dbUser)
@@ -57,9 +57,9 @@ class LoginActivity : AppCompatActivity() {
         } else {
             transaction.setCustomAnimations(inAnim, outAnim)
             transaction.replace(R.id.login_fragment_container, fragment)
+            transaction.addToBackStack(null)
         }
 
-        transaction.addToBackStack(null)
         transaction.commit()
     }
 }

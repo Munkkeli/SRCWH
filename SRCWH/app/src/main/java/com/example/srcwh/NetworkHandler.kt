@@ -8,6 +8,7 @@ import okhttp3.*
 import org.jetbrains.anko.uiThread
 import org.jetbrains.anko.doAsync
 import java.io.IOException
+import java.net.SocketTimeoutException
 
 data class LoginResponse(
     @SerializedName("user")val user: LoginUser,
@@ -39,8 +40,8 @@ class NetworkHandler {
             .post(body)
             .build()
 
-        try {
-            doAsync {
+        doAsync {
+            try {
                 val response = client.newCall(request).execute()
                 if (response.isSuccessful){
                     try {
@@ -56,10 +57,10 @@ class NetworkHandler {
                 } else {
                     uiThread { callback(LOGIN_ERROR, null) }
                 }
+            } catch (e: IOException){
+                Log.e("LOGIN", e.toString())
+                uiThread { callback(GENERIC_ERROR, null) }
             }
-        } catch (e: IOException){
-            Log.e("LOGIN", e.toString())
-            callback(GENERIC_ERROR, null)
         }
     }
 
@@ -75,18 +76,18 @@ class NetworkHandler {
             .post(body)
             .build()
 
-        try {
-            doAsync {
+        doAsync {
+            try {
                 val response = client.newCall(request).execute()
                 if (response.isSuccessful){
                     uiThread { callback(null) }
                 } else {
                     uiThread { callback(GENERIC_ERROR) }
                 }
+            } catch (e: IOException){
+                Log.e("GROUP", e.toString())
+                callback(GENERIC_ERROR)
             }
-        } catch (e: IOException){
-            Log.e("GROUP", e.toString())
-            callback(GENERIC_ERROR)
         }
     }
 }
