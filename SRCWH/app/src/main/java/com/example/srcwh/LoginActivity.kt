@@ -13,7 +13,7 @@ class LoginActivity : AppCompatActivity() {
 
         Log.d("LOGIN", "Activity created!")
 
-        changeFragment(LoginFragment { token, user ->  handleLogin(token, user) },android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+        changeFragment(LoginFragment { token, user ->  handleLogin(token, user) }, android.R.anim.slide_in_left, android.R.anim.slide_out_right)
     }
 
     private fun handleLogin(token: String, user: LoginUser) {
