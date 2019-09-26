@@ -1,18 +1,22 @@
 package com.example.srcwh
 
 
+import android.opengl.Visibility
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_login.*
 
 /**
  * A simple [Fragment] subclass.
  */
-class LoginFragment : Fragment() {
-
+class LoginFragment(val callback: (token: String, user: LoginUser) -> Unit) : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -25,15 +29,28 @@ class LoginFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         login_button.setOnClickListener { view ->
-            checkLoginInputData()
+            doLogin()
         }
-
     }
 
-    private fun checkLoginInputData(){
-        // later some proper input checks here
+    private fun doLogin(){
+        // TODO later some proper input checks here
+
+        login_progress.visibility = View.VISIBLE
+        login_button.isEnabled = false
+
+        // Send the login request
         val networkHandler = NetworkHandler()
-        networkHandler.postLogin(username_text.text.toString(), password_text.text.toString())
-    }
+        networkHandler.postLogin(username_text.text.toString(), password_text.text.toString()) { error, result ->
+            if (error != null) {
+                // Handle error message display
+                Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
+            } else {
+                callback(result!!.token, result.user)
+            }
 
+            login_progress.visibility = View.INVISIBLE
+            login_button.isEnabled = true
+        }
+    }
 }

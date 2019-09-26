@@ -1,60 +1,92 @@
 package com.example.srcwh
 
+import android.util.Log
 import com.google.gson.Gson
-import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import com.google.gson.annotations.SerializedName
 import okhttp3.*
+import org.jetbrains.anko.uiThread
 import org.jetbrains.anko.doAsync
-import org.json.JSONObject
 import java.io.IOException
 
-class NetworkHandler() {
+data class LoginResponse(
+    @SerializedName("user")val user: LoginUser,
+    @SerializedName("token")val token: String)
 
+data class LoginUser (
+    @SerializedName("id")val id: String,
+    @SerializedName("firstName")val firstName: String,
+    @SerializedName("lastName") val lastName: String,
+    @SerializedName("groupList")val groupList: ArrayList<String>,
+    @SerializedName("hash")val hash: String)
+
+class NetworkHandler {
     private val client = OkHttpClient()
 
-    fun postLogin(username: String, password: String) {
+    fun getBearer(token: String): String {
+        return "Bearer $token"
+    }
 
+    fun postLogin(username: String, password: String, callback: (error: String?, response: LoginResponse?) -> Unit) {
         val jsonData = JsonObject()
         jsonData.addProperty("username", username)
         jsonData.addProperty("password", password)
-        val JSON = MediaType.parse("application/json; charset=utf-8")
-        val b = RequestBody.create(JSON, jsonData.toString())
+
+        val json = MediaType.parse("application/json; charset=utf-8")
+        val body = RequestBody.create(json, jsonData.toString())
         val request = Request.Builder()
             .url(LOGIN_URL)
-            .post(b)
+            .post(body)
             .build()
 
-        try{
+        try {
             doAsync {
                 val response = client.newCall(request).execute()
-                println("KIKKEL post begins")
-                println("KIKKEL " + response.body()?.string())
-                if(response.isSuccessful){
-                    println("KIKKEL response code: " + response.code())
+                if (response.isSuccessful){
                     try {
-                        //val gson = GsonBuilder().setPrettyPrinting().create()
-                        // the problem currently is, that the gsonbuilder isn't casting the response into loginResponse succesfully.
-                        // the token isn't getting printed
-                        val responseJSON = Gson().fromJson(response.body()?.string(), loginResponse::class.java)
-                        println("KIKKEL " + responseJSON.token)
-                       // DatabaseObj.createNewUser(response)
-                    }catch (e: IOException){
-                        println("KIKKEL something went wrong in casting " + e.toString())}
+                        val responseBody = response.body()?.string()
+                        val responseJSON = Gson().fromJson(responseBody, LoginResponse::class.java)
+                        Log.d("LOGIN", "Login is successful")
+                        Log.d("LOGIN", responseBody)
+                        uiThread { callback(null, responseJSON) }
+                    } catch (e: IOException){
+                        Log.e("LOGIN", e.toString())
+                        uiThread { callback(GENERIC_ERROR, null) }
+                    }
+                } else {
+                    uiThread { callback(LOGIN_ERROR, null) }
                 }
             }
-        }catch (e: IOException){
-            println("KIKKEL something went wrong with the login post")
+        } catch (e: IOException){
+            Log.e("LOGIN", e.toString())
+            callback(GENERIC_ERROR, null)
+        }
+    }
+
+    fun postGroupUpdate(token: String, group: String, callback: (error: String?) -> Unit) {
+        val jsonData = JsonObject()
+        jsonData.addProperty("group", group)
+
+        val json = MediaType.parse("application/json; charset=utf-8")
+        val body = RequestBody.create(json, jsonData.toString())
+        val request = Request.Builder()
+            .url(UPDATE_URL)
+            .addHeader(AUTH_HEADER, getBearer(token))
+            .post(body)
+            .build()
+
+        try {
+            doAsync {
+                val response = client.newCall(request).execute()
+                if (response.isSuccessful){
+                    uiThread { callback(null) }
+                } else {
+                    uiThread { callback(GENERIC_ERROR) }
+                }
+            }
+        } catch (e: IOException){
+            Log.e("GROUP", e.toString())
+            callback(GENERIC_ERROR)
         }
     }
 }
-
-data class loginResponse(
-    @SerializedName("user")val user: loginUser,
-    @SerializedName("token")val token: String)
-data class loginUser (
-    @SerializedName("id")val id: String,
-    @SerializedName("firstname")val firstname: String,
-    @SerializedName("lastname") val lastName: String,
-    @SerializedName("groupList")val groupList: ArrayList<String>,
-    @SerializedName("hash")val hash: String)

@@ -2,5 +2,8 @@
     <string name="app_name">SRCWH</string>
     <string name="snackbar_no_nfc">No NFC detected, check if turned off</string>
     <string name="nfc_no_action">Something went wrong with reading the NFC tag, try again!</string>
-    <string name="login_button">LOGIN</string>
+    <string name="login_button">Sign In</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

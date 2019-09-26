@@ -8,20 +8,23 @@ import android.os.Bundle
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import com.google.android.material.snackbar.Snackbar
 import android.app.PendingIntent
-import androidx.core.app.ComponentActivity
-import androidx.core.app.ComponentActivity.ExtraData
 import androidx.core.content.ContextCompat.getSystemService
 import android.icu.lang.UCharacter.GraphemeClusterBreak.T
 import android.nfc.tech.Ndef
 import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.fragment_login.*
+import androidx.core.app.ComponentActivity
+import androidx.core.app.ComponentActivity.ExtraData
+import androidx.core.content.ContextCompat.getSystemService
+import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+import android.util.Log
 
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var nfcAdapter: NfcAdapter
     private lateinit var pendingIntent: PendingIntent
-    private lateinit var user: User
+    private var user: User? = null
     private val networkHandler = NetworkHandler()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,14 +34,20 @@ class MainActivity : AppCompatActivity() {
         // first thing, we need to establish the database connection, and check if current userdata exists
         // getUserData() both initiates the database connection, and returns an user -object IF one exists.
         // if the user object is null, then there was no data. (usually meaning first time user)
-         user = getUserData() ?: return
+        user = getUserData()
 
-        if(user.token == null){
-           changeFragment(LoginFragment())
-        }else{
-            print("KIKKEL " + user.token)
-            changeFragment(ScanFragment())
+        if (user == null) {
+            Log.d("MAIN", "Opening login")
+
+            // TODO app should decide on startup if login activity should be run
+            val intent = Intent(this, LoginActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK  and Intent.FLAG_ACTIVITY_NEW_TASK
+            startActivity(intent)
+            finish()
+           // changeFragment(LoginFragment { error, result -> })
         }
+
+        changeFragment(ScanFragment())
 
         // setup the nfc reader
         setupNfc()
@@ -113,11 +122,13 @@ class MainActivity : AppCompatActivity() {
 
         // first we need to check if a fragment exists, meaning should we replace or add
         // we also set the custom animation only when there already exists one fragment
-        if(fManager.fragments.count() == 0)fTransaction.add(R.id.main_host_fragment, fragment)
+        if(fManager.fragments.count() == 0)fTransaction.add(R.id.main_fragment_container, fragment)
         else{
             fTransaction.setCustomAnimations(inAnim, outAnim)
-            fTransaction.replace(R.id.main_host_fragment, fragment)
+            fTransaction.replace(R.id.main_fragment_container, fragment)
         }
+
+        fTransaction.commit()
     }
 
 

@@ -6,12 +6,13 @@ import androidx.room.*
 @Entity
 data class User(
     @PrimaryKey
-    val metropoliaID: Long?,
+    val metropoliaId: Long,
     val firstName: String?,
     val lastName: String?,
-    val groupList:String?,
-    val hash : Long?,
-    val token : Long?) {}
+    val groupList: String,
+    var currentGroup: String,
+    val hash : String,
+    val token : String)
 
 
 // technically this is enough, we can always just fetch the person and check for whatever it is that we need
