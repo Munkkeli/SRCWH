@@ -1,5 +1,6 @@
 package com.example.srcwh
 
+import android.Manifest
 import android.content.Intent
 import android.nfc.NdefMessage
 import android.nfc.NfcAdapter
@@ -8,24 +9,21 @@ import android.os.Bundle
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import com.google.android.material.snackbar.Snackbar
 import android.app.PendingIntent
-import androidx.core.content.ContextCompat.getSystemService
-import android.icu.lang.UCharacter.GraphemeClusterBreak.T
-import android.nfc.tech.Ndef
 import androidx.fragment.app.Fragment
-import kotlinx.android.synthetic.main.fragment_login.*
-import androidx.core.app.ComponentActivity
-import androidx.core.app.ComponentActivity.ExtraData
-import androidx.core.content.ContextCompat.getSystemService
-import android.icu.lang.UCharacter.GraphemeClusterBreak.T
-import android.util.Log
-
+import android.content.pm.PackageManager
+import android.location.Location
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     private lateinit var nfcAdapter: NfcAdapter
     private lateinit var pendingIntent: PendingIntent
     private var user: User? = null
     private val networkHandler = NetworkHandler()
+
+    private var locationRequestCallback: ((granted: Boolean, explain: Boolean?) -> Unit)? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,6 +41,82 @@ class MainActivity : AppCompatActivity() {
 
         // if the application was opened via nfc reader, this gets called
         if(intent != null){ processIncomingIntent(intent)}
+
+        // fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+
+        // showAlertDialog()
+    }
+
+    private fun showAlertDialog() {
+        val dialogHandler = DialogHandler(this)
+        dialogHandler.open()
+
+        getLocationCoordinates { location, explain ->
+            when {
+                location != null -> {
+                    val networkHandler = NetworkHandler()
+                    /*
+                    networkHandler.postCheckIn() { error ->
+
+                    }
+                    */
+                }
+                explain == true -> {
+                    dialogHandler.setErrorLocation()
+                }
+                else -> {
+
+                }
+            }
+        }
+    }
+
+    private fun getLocationCoordinates(callback: (location: Pair<Double, Double>?, explain: Boolean?) -> Unit) {
+        checkLocationPermission { granted, explain ->
+            when {
+                granted -> fusedLocationClient.lastLocation
+                    .addOnSuccessListener { location: Location? ->
+                        if (location == null) {
+                            callback(null, null)
+                        } else {
+                            callback(Pair(location?.latitude, location?.longitude), null)
+                        }
+                    }
+                explain == true -> callback(null, true)
+                else -> callback(null, null)
+            }
+        }
+    }
+
+    private fun checkLocationPermission(callback: (granted: Boolean, explain: Boolean?) -> Unit) {
+        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
+                // TODO show WE NEED PERMISSION dialog
+                callback(false, true)
+            } else {
+                requestLocationPermission(callback)
+            }
+        } else {
+            callback(true, false)
+        }
+    }
+
+    private fun requestLocationPermission(callback: (granted: Boolean, explain: Boolean?) -> Unit) {
+        locationRequestCallback = callback
+        requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), PERMISSIONS_REQUEST_LOCATION)
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        when (requestCode) {
+            PERMISSIONS_REQUEST_LOCATION -> {
+                val granted = (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                if (locationRequestCallback != null) {
+                    locationRequestCallback?.invoke(granted, false)
+                    locationRequestCallback = null
+                }
+            }
+            else -> {}
+        }
     }
 
     override fun onResume() {
@@ -80,12 +154,13 @@ class MainActivity : AppCompatActivity() {
         // so again, just to check that the nfc tag has some ndef data
         // because the ndef holds multiple points of data, we tell here that this one bytestream is the id data.
         // it's easy to configure when writing the nfc slab. (make the "app opening" to be first datapoint, and the id the second)
-        if(intent.action == NfcAdapter.ACTION_NDEF_DISCOVERED ){
+        if (intent.action == NfcAdapter.ACTION_NDEF_DISCOVERED ) {
             val msg = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES)[0] as NdefMessage
             val nfc_id = String(msg.records[1].payload.drop(3).toByteArray())
             println("KIKKEL " + nfc_id)
 
-        }else{
+            showAlertDialog()
+        } else {
             // for some reason the incomint intent.action is not the one we want
                 return
         }

@@ -2,13 +2,14 @@ package com.example.srcwh
 
 import android.util.Log
 import com.google.gson.Gson
+import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.annotations.SerializedName
 import okhttp3.*
 import org.jetbrains.anko.uiThread
 import org.jetbrains.anko.doAsync
+import org.json.JSONObject
 import java.io.IOException
-import java.net.SocketTimeoutException
 
 data class LoginResponse(
     @SerializedName("user")val user: LoginUser,
@@ -20,6 +21,24 @@ data class LoginUser (
     @SerializedName("lastName") val lastName: String,
     @SerializedName("groupList")val groupList: ArrayList<String>,
     @SerializedName("hash")val hash: String)
+
+enum class AttendError {
+    GENERIC,
+    SLAB,
+    LESSON,
+    LOCATION,
+    UPDATE,
+}
+
+data class AttendResponse (
+    @SerializedName("success") val success: Boolean,
+    @SerializedName("requiresUpdate") val requiresUpdate: Boolean,
+    @SerializedName("valid") val valid: AttendResponseValid)
+
+data class AttendResponseValid (
+    @SerializedName("slab") val slab: Boolean,
+    @SerializedName("lesson") val lesson: Boolean,
+    @SerializedName("position") val position: Boolean)
 
 class NetworkHandler {
     private val client = OkHttpClient()
@@ -87,6 +106,45 @@ class NetworkHandler {
             } catch (e: IOException){
                 Log.e("GROUP", e.toString())
                 callback(GENERIC_ERROR)
+            }
+        }
+    }
+
+    fun postCheckIn(token: String, slabId: String, coordinates: Pair<Double, Double>, confirmUpdate: Boolean, callback: (error: AttendError?) -> Unit) {
+        val jsonData = JsonObject()
+        jsonData.addProperty("slab", slabId)
+        jsonData.addProperty("confirmUpdate", confirmUpdate)
+        // jsonData.add("coordinates", JSONObject("""{ "x": ${coordinates.first}, "y": ${coordinates.second} }"""))
+
+        val json = MediaType.parse("application/json; charset=utf-8")
+        val body = RequestBody.create(json, jsonData.toString())
+        val request = Request.Builder()
+            .url(ATTEND_URL)
+            .addHeader(AUTH_HEADER, getBearer(token))
+            .post(body)
+            .build()
+
+        doAsync {
+            try {
+                val response = client.newCall(request).execute()
+                if (response.isSuccessful){
+                    val responseBody = response.body()?.string()
+                    val responseJSON = Gson().fromJson(responseBody, AttendResponse::class.java)
+
+                    when {
+                        responseJSON.success -> uiThread { callback(null) }
+                        responseJSON.requiresUpdate -> uiThread { callback(AttendError.UPDATE) }
+                        !responseJSON.valid.slab -> uiThread { callback(AttendError.SLAB) }
+                        !responseJSON.valid.lesson ->  uiThread { callback(AttendError.LESSON) }
+                        !responseJSON.valid.position -> uiThread { callback(AttendError.LOCATION) }
+                        else -> uiThread { callback(AttendError.GENERIC) }
+                    }
+                } else {
+                    uiThread { callback(AttendError.GENERIC) }
+                }
+            } catch (e: IOException){
+                Log.e("ATTEND", e.toString())
+                callback(AttendError.GENERIC)
             }
         }
     }
