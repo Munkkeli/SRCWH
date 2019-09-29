@@ -1,15 +1,18 @@
 package com.example.srcwh
 
+import android.provider.ContactsContract
 import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.annotations.SerializedName
+import kotlinx.coroutines.channels.consumesAll
 import okhttp3.*
 import org.jetbrains.anko.uiThread
 import org.jetbrains.anko.doAsync
 import org.json.JSONObject
 import java.io.IOException
+import java.time.LocalDate
 
 data class LoginResponse(
     @SerializedName("user")val user: LoginUser,
@@ -39,6 +42,18 @@ data class AttendResponseValid (
     @SerializedName("slab") val slab: Boolean,
     @SerializedName("lesson") val lesson: Boolean,
     @SerializedName("position") val position: Boolean)
+
+data class ScheduleResponse(
+    @SerializedName("start") val start: String,
+    @SerializedName("end") val end: String,
+    @SerializedName("locationList") val locationList: ArrayList<String>,
+    @SerializedName("code") val code: String,
+    @SerializedName("name") val name: String,
+    @SerializedName("groupList") val groupList: ArrayList<String>,
+    @SerializedName("teacherList") val teacherList: ArrayList<String>,
+    @SerializedName("id") val id: String,
+    @SerializedName("attended") val attended: String?
+)
 
 class NetworkHandler {
     private val client = OkHttpClient()
@@ -150,6 +165,42 @@ class NetworkHandler {
                 Log.e("ATTEND", e.toString())
                 callback(AttendError.GENERIC)
             }
+        }
+    }
+
+    fun getSchedule(callback:() -> Unit ){
+        try {
+            doAsync {
+                val request = Request.Builder()
+                    .url(SCHEDULE_URL)
+                    .header("Authorization", "Bearer ${DatabaseObj.user.token!!}")
+                    .build()
+                    client.newCall(request).enqueue(object : Callback {
+                    override fun onFailure(call: Call, e: IOException) {
+                        Log.e("SCHEDULE", e.toString())
+                    }
+                    override fun onResponse(call: Call, response: Response) {
+                        // cast the response into proper format
+                        val responseBody = response.body()?.string()
+                        val responseJSON = Gson().fromJson(responseBody, Array<ScheduleResponse>::class.java)
+                        for(lesson in responseJSON){
+                            DatabaseObj.addScheduleToDatabase(lesson)
+                        }
+
+                        for(e in DatabaseObj.getSchedule()!!){
+                            println(e)
+                        }
+
+
+                        uiThread { callback() }
+                    }
+                })
+
+            }
+
+        }catch (e: IOException){
+            Log.e("SCHEDULE", e.toString())
+
         }
     }
 }
