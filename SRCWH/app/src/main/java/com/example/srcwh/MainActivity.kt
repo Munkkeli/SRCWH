@@ -12,14 +12,18 @@ import android.app.PendingIntent
 import androidx.fragment.app.Fragment
 import android.content.pm.PackageManager
 import android.location.Location
+import android.provider.ContactsContract
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     private lateinit var nfcAdapter: NfcAdapter
     private lateinit var pendingIntent: PendingIntent
+    private lateinit var schedule: List<ClientSchedule>
 
     private var locationRequestCallback: ((granted: Boolean, explain: Boolean?) -> Unit)? = null
 
@@ -27,6 +31,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        DatabaseObj.user = DatabaseObj.getUserData()!!
+        val networkHandler = NetworkHandler()
+        networkHandler.getSchedule{generateView()}
         // first thing, we need to establish the database connection, and check if current userdata exists
         // getUserData() both initiates the database connection, and returns an user -object IF one exists.
         // if the user object is null, then there was no data. (usually meaning first time user)
@@ -144,6 +151,11 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
+    private fun generateView(){
+        recyclerview_main.layoutManager = LinearLayoutManager(this)
+        recyclerview_main.adapter = MainAdapter(DatabaseObj.getSchedule())
+    }
+
     // in processIncomingIntent we check the message initiated by the nfc -reading
     private fun processIncomingIntent(intent: Intent){
         // so again, just to check that the nfc tag has some ndef data
@@ -167,19 +179,4 @@ class MainActivity : AppCompatActivity() {
         Snackbar.make(coordinator, stringInt, Snackbar.LENGTH_LONG).show()
     }
 
-    private fun changeFragment(fragment: Fragment, inAnim: Int = 0, outAnim: Int = 0){
-        val fManager = supportFragmentManager
-        val fTransaction = fManager.beginTransaction()
-
-
-        // first we need to check if a fragment exists, meaning should we replace or add
-        // we also set the custom animation only when there already exists one fragment
-        if(fManager.fragments.count() == 0)fTransaction.add(R.id.main_fragment_container, fragment)
-        else{
-            fTransaction.setCustomAnimations(inAnim, outAnim)
-            fTransaction.replace(R.id.main_fragment_container, fragment)
-        }
-
-        fTransaction.commit()
-    }
 }
