@@ -10,6 +10,7 @@ class SplashActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+
         val user = getUserData()
 
         Log.d("SPLASH", "Went to splash screen")
@@ -19,6 +20,7 @@ class SplashActivity : AppCompatActivity() {
         } else {
             navigate(MainActivity::class as KClass<Any>)
         }
+
     }
 
     private fun navigate(activity: KClass<Any>) {
@@ -28,7 +30,7 @@ class SplashActivity : AppCompatActivity() {
         finish()
     }
 
-    private fun getUserData() : User?{
+    private fun getUserData() : ClientUser?{
         DatabaseObj.initDatabaseConnection(this)
         return DatabaseObj.getUserData()
     }
