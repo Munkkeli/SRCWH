@@ -114,7 +114,11 @@ class NetworkHandler {
         val jsonData = JsonObject()
         jsonData.addProperty("slab", slabId)
         jsonData.addProperty("confirmUpdate", confirmUpdate)
-        // jsonData.add("coordinates", JSONObject("""{ "x": ${coordinates.first}, "y": ${coordinates.second} }"""))
+
+        val jsonDataCoordinates = JsonObject()
+        jsonDataCoordinates.addProperty("x", coordinates.first)
+        jsonDataCoordinates.addProperty("y", coordinates.second)
+        jsonData.add("coordinates", jsonDataCoordinates)
 
         val json = MediaType.parse("application/json; charset=utf-8")
         val body = RequestBody.create(json, jsonData.toString())

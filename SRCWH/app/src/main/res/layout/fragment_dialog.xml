@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <TextView
+        android:id="@+id/dialog_location"
+        android:layout_width="match_parent"
+        android:layout_height="128dp"
+        android:layout_marginTop="64dp"
+        android:text="C312"
+        android:textAlignment="center"
+        android:gravity="center"
+        android:textSize="60sp"
+        android:textStyle="bold" />
+
+    <ImageView
+        android:layout_marginTop="64dp"
+        android:id="@+id/dialog_success_icon"
+        android:layout_width="match_parent"
+        android:layout_height="128dp"
+        android:tint="@color/colorPrimary"
+        app:srcCompat="@drawable/ic_checkbox_marked_circle_outline" />
+
+    <TextView
+        android:id="@+id/dialog_success_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="You're in"
+        android:textAlignment="center"
+        android:textColor="@color/colorPrimary"
+        android:textSize="32sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:paddingLeft="48dp"
+        android:paddingRight="48dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="32dp"
+        android:id="@+id/dialog_success_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="You have checked in to “bla bla bla bla bla” at C123"
+        android:textAlignment="center" />
+
+</LinearLayout>

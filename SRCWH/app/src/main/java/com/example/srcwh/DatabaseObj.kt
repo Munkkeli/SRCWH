@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentLinkedDeque
 object DatabaseObj {
     private lateinit var dataBase: UserDatabase
     // user is the userdata clientside, stored in a variable that can be reached easily app-wide
-    private lateinit var user: ClientUser
+    lateinit var user: ClientUser
 
     fun initDatabaseConnection(context: Context){
         dataBase = UserDatabase.get(context)

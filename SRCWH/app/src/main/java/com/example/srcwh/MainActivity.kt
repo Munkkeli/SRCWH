@@ -12,6 +12,9 @@ import android.app.PendingIntent
 import androidx.fragment.app.Fragment
 import android.content.pm.PackageManager
 import android.location.Location
+import android.util.Log
+import com.example.srcwh.dialog.DialogAction
+import com.example.srcwh.dialog.DialogHandler
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 
@@ -20,6 +23,8 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var nfcAdapter: NfcAdapter
     private lateinit var pendingIntent: PendingIntent
+
+    private lateinit var dialogHandler: DialogHandler
 
     private var locationRequestCallback: ((granted: Boolean, explain: Boolean?) -> Unit)? = null
 
@@ -34,40 +39,61 @@ class MainActivity : AppCompatActivity() {
         // setup the nfc reader
         setupNfc()
 
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+
+        dialogHandler = DialogHandler(this, supportFragmentManager)
+
         // if the application was opened via nfc reader, this gets called
-        if(intent != null){ processIncomingIntent(intent)}
-
-        // fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-
-        // showAlertDialog()
+        if(intent != null){
+            if (intent.extras != null && intent.extras!!.containsKey("nfc")) {
+                processIncomingIntent(intent.extras!!["nfc"] as Intent)
+            } else {
+                processIncomingIntent(intent)
+            }
+        }
     }
 
-    private fun showAlertDialog() {
-        val dialogHandler = DialogHandler(this)
-        dialogHandler.open()
+    private fun showAlertDialog(slabId: String, comingFromExplain: Boolean = false) {
+        val user = DatabaseObj.getUserData()
 
-        getLocationCoordinates { location, explain ->
+        getLocationCoordinates(comingFromExplain) { location, explain ->
+            Log.d("LOCATION", "Test done ${location} ${explain}")
+
             when {
                 location != null -> {
-                    val networkHandler = NetworkHandler()
-                    /*
-                    networkHandler.postCheckIn() { error ->
+                    dialogHandler.open()
 
+                    val networkHandler = NetworkHandler()
+                    networkHandler.postCheckIn(user!!.token!!, slabId, location, false) { error ->
+                        when (error) {
+                            AttendError.LOCATION -> dialogHandler.setErrorLocation()
+                            // TODO: add all other possibilities
+                        }
+                        Log.d("CHECKIN", "Doned ${error}")
                     }
-                    */
                 }
-                explain == true -> {
-                    dialogHandler.setErrorLocation()
+                (explain == true) -> {
+                    dialogHandler.open("location_permission") { action ->
+                        dialogHandler.close()
+
+                        Log.d("DIALOG", "action $action")
+
+                        if (action == DialogAction.PRIMARY) {
+                            showAlertDialog(slabId, true)
+                        }
+                    }
                 }
                 else -> {
-
+                    dialogHandler.open("location_permission", true)
                 }
             }
         }
     }
 
-    private fun getLocationCoordinates(callback: (location: Pair<Double, Double>?, explain: Boolean?) -> Unit) {
-        checkLocationPermission { granted, explain ->
+    private fun getLocationCoordinates(comingFromExplain: Boolean, callback: (location: Pair<Double, Double>?, explain: Boolean?) -> Unit) {
+        Log.d("LOCATION", "getLocationCoordinates")
+
+        checkLocationPermission(comingFromExplain) { granted, explain ->
             when {
                 granted -> fusedLocationClient.lastLocation
                     .addOnSuccessListener { location: Location? ->
@@ -83,11 +109,17 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun checkLocationPermission(callback: (granted: Boolean, explain: Boolean?) -> Unit) {
+    private fun checkLocationPermission(comingFromExplain: Boolean, callback: (granted: Boolean, explain: Boolean?) -> Unit) {
+        Log.d("LOCATION", "checkLocationPermission")
+
         if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
-                // TODO show WE NEED PERMISSION dialog
-                callback(false, true)
+                if (!comingFromExplain) {
+                    Log.d("LOCATION", "how WE NEED PERMISSION dialog")
+                    callback(false, true)
+                } else {
+                    requestLocationPermission(callback)
+                }
             } else {
                 requestLocationPermission(callback)
             }
@@ -97,11 +129,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun requestLocationPermission(callback: (granted: Boolean, explain: Boolean?) -> Unit) {
+        Log.d("LOCATION", "requestLocationPermission")
+
         locationRequestCallback = callback
         requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), PERMISSIONS_REQUEST_LOCATION)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        Log.d("LOCATION", "onRequestPermissionsResult ${requestCode}")
+
         when (requestCode) {
             PERMISSIONS_REQUEST_LOCATION -> {
                 val granted = (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)
@@ -154,7 +190,7 @@ class MainActivity : AppCompatActivity() {
             val nfc_id = String(msg.records[1].payload.drop(3).toByteArray())
             println("KIKKEL " + nfc_id)
 
-            showAlertDialog()
+            if (!dialogHandler.isOpen) showAlertDialog(nfc_id)
         } else {
             // for some reason the incomint intent.action is not the one we want
                 return
