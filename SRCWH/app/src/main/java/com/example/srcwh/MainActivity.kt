@@ -24,8 +24,6 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var nfcAdapter: NfcAdapter
     private lateinit var pendingIntent: PendingIntent
-    private var user: User? = null
-    private val networkHandler = NetworkHandler()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,9 +32,6 @@ class MainActivity : AppCompatActivity() {
         // first thing, we need to establish the database connection, and check if current userdata exists
         // getUserData() both initiates the database connection, and returns an user -object IF one exists.
         // if the user object is null, then there was no data. (usually meaning first time user)
-        user = getUserData()
-
-        changeFragment(ScanFragment())
 
         // setup the nfc reader
         setupNfc()
@@ -91,10 +86,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun getUserData() : User?{
-        DatabaseObj.initDatabaseConnection(this)
-        return DatabaseObj.getUserData()
-    }
 
     private fun showSnackbar(stringInt: Int){
         val coordinator = this.findViewById<CoordinatorLayout>(R.id.coordinator_layout)
