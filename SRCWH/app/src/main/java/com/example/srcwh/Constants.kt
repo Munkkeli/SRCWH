@@ -23,13 +23,15 @@ const val DIALOG_ICON_LOADING = R.drawable.ic_radiobox_blank
 const val DIALOG_ICON_CHECK = R.drawable.ic_checkbox_marked_circle_outline
 const val DIALOG_ICON_LOCATION = R.drawable.ic_map_marker_circle
 const val DIALOG_ICON_ERROR_LOCATION = R.drawable.ic_map_marker_remove
+const val DIALOG_ICON_OVERRIDE = R.drawable.ic_refresh
 
 const val DIALOG_TITLE_ATTENDED = "You're in"
 const val DIALOG_TITLE_CONFIRM = "You sure?"
 const val DIALOG_TITLE_ERROR = "Uh oh…"
 
-const val DIALOG_TEXT_ERROR_POSITION = "You have to be at POSITION to attend this lesson."
-const val DIALOG_TEXT_ERROR_LOCATION = "“LESSON” is held in classroom LOCATION, are you sure you want to check in to another classroom?"
+const val DIALOG_TEXT_ERROR_POSITION = "You have to be at ADDRESS to attend this lesson."
+const val DIALOG_TEXT_ERROR_LOCATION = "“LESSON” is held in LOCATION, are you sure you want to check in to another location?"
 const val DIALOG_TEXT_ATTENDED = "You have checked in to “LESSON” at LOCATION"
+const val DIALOG_TEXT_OVERRIDE = "You have already attended “LESSON” in another location, are you sure you want to switch to LOCATION"
 const val DIALOG_TEXT_ERROR_PERMISSION_LOCATION = "Please enable location to attend this lesson."
 const val DIALOG_TEXT_ERROR_PERMISSION_LOCATION_DISABLED = "You have disabled location. Please enable location to attend this lesson."

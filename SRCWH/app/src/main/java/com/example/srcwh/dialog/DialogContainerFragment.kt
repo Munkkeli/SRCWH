@@ -9,7 +9,15 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import com.example.srcwh.*
 
-class DialogContainerFragment(private val firstFragment: String, private val locationDisabled: Boolean = false, private val actionHandler: (action: DialogAction) -> Unit) : DialogFragment() {
+enum class DialogViewState {
+    LOADING,
+    POSITION_ERROR,
+    POSITION_BLOCK_ERROR,
+    ATTENDED,
+    LOCATION_CONFIRM
+}
+
+class DialogContainerFragment(private val initialState: DialogViewState, private val actionHandler: (action: DialogAction) -> Unit) : DialogFragment() {
     var firstLoad = true
 
     override fun onCreateView(
@@ -19,12 +27,17 @@ class DialogContainerFragment(private val firstFragment: String, private val loc
     ): View? {
         val view = layoutInflater.inflate(R.layout.dialog_success, null)
 
-        when(firstFragment) {
-            "loading" -> setLoading()
-            "location_permission" -> setErrorPermissionLocation(locationDisabled)
-        }
+        setState(initialState)
 
         return view
+    }
+
+    fun setState(initialState: DialogViewState) {
+        when(initialState) {
+            DialogViewState.POSITION_ERROR -> setErrorPositionPermission(false)
+            DialogViewState.POSITION_BLOCK_ERROR -> setErrorPositionPermission(true)
+            else -> setLoading()
+        }
     }
 
     fun setLoading() {
@@ -36,26 +49,52 @@ class DialogContainerFragment(private val firstFragment: String, private val loc
                 null
             )
         )
+
+        changeActionFragment(
+            DialogActionFragment(
+                null,
+                null,
+                null,
+                actionHandler
+            )
+        )
+
+        isCancelable = false
     }
 
-    fun setCheckIn() {
+    fun setAttended(location: String?, lesson: ScheduleResponse?) {
+        val name = lesson?.name ?: "?"
+
         changeFragment(
             DialogContentFragment(
                 DIALOG_ICON_CHECK,
                 DIALOG_TITLE_ATTENDED,
-                DIALOG_TEXT_ATTENDED,
+                DIALOG_TEXT_ATTENDED.replace("LESSON", name).replace("LOCATION", location ?: "?"),
                 null
             )
         )
+
+        changeActionFragment(
+            DialogActionFragment(
+                DIALOG_OK,
+                null,
+                null,
+                actionHandler
+            )
+        )
+
+        isCancelable = true
     }
 
-    fun setConfirm() {
+    fun setOverride(location: String?, lesson: ScheduleResponse?) {
+        val name = lesson?.name ?: "?"
+
         changeFragment(
             DialogContentFragment(
-                null,
+                DIALOG_ICON_OVERRIDE,
                 DIALOG_TITLE_CONFIRM,
-                DIALOG_TEXT_ERROR_LOCATION,
-                "C223"
+                DIALOG_TEXT_OVERRIDE.replace("LESSON", name).replace("LOCATION", location ?: "?"),
+                null
             )
         )
 
@@ -67,17 +106,47 @@ class DialogContainerFragment(private val firstFragment: String, private val loc
                 actionHandler
             )
         )
+
+        isCancelable = false
     }
 
-    fun setErrorLocation() {
+    fun setConfirm(location: String?, lesson: ScheduleResponse?) {
+        val name = lesson?.name ?: "?"
+        val lessonLocationList = lesson?.locationList?.toArray() ?: arrayOf<String>()
+
+        changeFragment(
+            DialogContentFragment(
+                null,
+                DIALOG_TITLE_CONFIRM,
+                DIALOG_TEXT_ERROR_LOCATION.replace("LESSON", name).replace("LOCATION", lessonLocationList.joinToString("or")),
+                location ?: "?"
+            )
+        )
+
+        changeActionFragment(
+            DialogActionFragment(
+                DIALOG_CONFIRM,
+                null,
+                DIALOG_CANCEL,
+                actionHandler
+            )
+        )
+
+        isCancelable = false
+    }
+
+    fun setErrorPosition(lesson: ScheduleResponse?) {
+        val address = "TODO"
+
         changeFragment(
             DialogContentFragment(
                 DIALOG_ICON_LOCATION,
                 DIALOG_TITLE_ERROR,
-                DIALOG_TEXT_ERROR_POSITION.replace("POSITION", "Leiritie 1"),
+                DIALOG_TEXT_ERROR_POSITION.replace("ADDRESS", address),
                 null
             )
         )
+
         changeActionFragment(
             DialogActionFragment(
                 DIALOG_OK,
@@ -86,9 +155,11 @@ class DialogContainerFragment(private val firstFragment: String, private val loc
                 actionHandler
             )
         )
+
+        isCancelable = false
     }
 
-    fun setErrorPermissionLocation(isDisabled: Boolean) {
+    fun setErrorPositionPermission(isDisabled: Boolean) {
         var text = DIALOG_TEXT_ERROR_PERMISSION_LOCATION
         if (isDisabled) text = DIALOG_TEXT_ERROR_PERMISSION_LOCATION_DISABLED
 
@@ -110,6 +181,8 @@ class DialogContainerFragment(private val firstFragment: String, private val loc
                     actionHandler
                 )
             )
+
+            isCancelable = false
         } else {
             changeActionFragment(
                 DialogActionFragment(
@@ -119,6 +192,8 @@ class DialogContainerFragment(private val firstFragment: String, private val loc
                     actionHandler
                 )
             )
+
+            isCancelable = true
         }
     }
 
