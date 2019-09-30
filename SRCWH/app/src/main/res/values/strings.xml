@@ -13,4 +13,6 @@
     <string name="dark_mode_text">Dark mode</string>
     <string name="Logout_text">Logout</string>
     <string name="dark_mode_switch_text">On</string>
+
+    <string name="dialog_text_attended">You have checked in to “LESSON” at LOCATION</string>
 </resources>

@@ -1,16 +1,29 @@
 package com.example.srcwh.dialog
 
 import android.os.Bundle
-import android.util.Log
 import android.view.ViewGroup
 import android.view.LayoutInflater
 import android.view.View
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.Fragment
 import com.example.srcwh.*
 
-class DialogContainerFragment(private val firstFragment: String, private val locationDisabled: Boolean = false, private val actionHandler: (action: DialogAction) -> Unit) : DialogFragment() {
-    var firstLoad = true
+enum class DialogInitialState {
+    LOADING,
+    ERROR,
+    POSITION_ERROR,
+    POSITION_BLOCK_ERROR,
+}
+
+class DialogContainerFragment(
+    private val initialState: DialogInitialState,
+    private val actionHandler: (action: DialogAction) -> Unit
+) : DialogFragment() {
+    private lateinit var DC: DialogConstants
+
+    var isFirstLoad = true
+    var lastHeight = 0
+
+    var containerView: View? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -19,143 +32,115 @@ class DialogContainerFragment(private val firstFragment: String, private val loc
     ): View? {
         val view = layoutInflater.inflate(R.layout.dialog_success, null)
 
-        when(firstFragment) {
-            "loading" -> setLoading()
-            "location_permission" -> setErrorPermissionLocation(locationDisabled)
-        }
+        DC = DialogConstants(context!!)
+
+        this.containerView = view
+        setState(initialState)
 
         return view
     }
 
-    fun setLoading() {
-        changeFragment(
-            DialogContentFragment(
-                DIALOG_ICON_LOADING,
-                "…",
-                "",
-                null
-            )
-        )
-    }
-
-    fun setCheckIn() {
-        changeFragment(
-            DialogContentFragment(
-                DIALOG_ICON_CHECK,
-                DIALOG_TITLE_ATTENDED,
-                DIALOG_TEXT_ATTENDED,
-                null
-            )
-        )
-    }
-
-    fun setConfirm() {
-        changeFragment(
-            DialogContentFragment(
-                null,
-                DIALOG_TITLE_CONFIRM,
-                DIALOG_TEXT_ERROR_LOCATION,
-                "C223"
-            )
-        )
-
-        changeActionFragment(
-            DialogActionFragment(
-                DIALOG_CONFIRM,
-                null,
-                DIALOG_CANCEL,
-                actionHandler
-            )
-        )
-    }
-
-    fun setErrorLocation() {
-        changeFragment(
-            DialogContentFragment(
-                DIALOG_ICON_LOCATION,
-                DIALOG_TITLE_ERROR,
-                DIALOG_TEXT_ERROR_POSITION.replace("POSITION", "Leiritie 1"),
-                null
-            )
-        )
-        changeActionFragment(
-            DialogActionFragment(
-                DIALOG_OK,
-                null,
-                null,
-                actionHandler
-            )
-        )
-    }
-
-    fun setErrorPermissionLocation(isDisabled: Boolean) {
-        var text = DIALOG_TEXT_ERROR_PERMISSION_LOCATION
-        if (isDisabled) text = DIALOG_TEXT_ERROR_PERMISSION_LOCATION_DISABLED
-
-        changeFragment(
-            DialogContentFragment(
-                DIALOG_ICON_ERROR_LOCATION,
-                DIALOG_TITLE_ERROR,
-                text,
-                null
-            )
-        )
-
-        if (!isDisabled) {
-            changeActionFragment(
-                DialogActionFragment(
-                    DIALOG_LOCATION,
-                    null,
-                    DIALOG_CANCEL,
-                    actionHandler
-                )
-            )
-        } else {
-            changeActionFragment(
-                DialogActionFragment(
-                    DIALOG_OK,
-                    null,
-                    null,
-                    actionHandler
-                )
-            )
+    fun setState(initialState: DialogInitialState) {
+        when (initialState) {
+            DialogInitialState.ERROR -> setError()
+            DialogInitialState.POSITION_ERROR -> setErrorPositionPermission(false)
+            DialogInitialState.POSITION_BLOCK_ERROR -> setErrorPositionPermission(true)
+            else -> setLoading()
         }
+    }
+
+    fun setLoading() {
+        DialogBuilder(this).begin()
+            .setViewTemplate(DialogViewTemplate.LOADING)
+            .setOnActionHandler(actionHandler)
+            .build()
+    }
+
+    fun setAttended(location: String?, lesson: ScheduleResponse?) {
+        val name = lesson?.name ?: "?"
+
+        DialogBuilder(this).begin()
+            .setViewTemplate(DialogViewTemplate.SUCCESS)
+            .setTitle(DC.TITLE_ATTENDED)
+            .setText(
+                DC.TEXT_ATTENDED.replace("LESSON", name).replace(
+                    "LOCATION",
+                    "<b>${location ?: "?"}</b>"
+                )
+            )
+            .setOnActionHandler(actionHandler)
+            .build()
+    }
+
+    fun setOverride(location: String?, lesson: ScheduleResponse?) {
+        val name = lesson?.name ?: "?"
+
+        DialogBuilder(this).begin()
+            .setViewTemplate(DialogViewTemplate.QUESTION)
+            .setIcon(DC.ICON_OVERRIDE)
+            .setText(
+                DC.TEXT_OVERRIDE
+                    .replace("LESSON", name)
+                    .replace("LOCATION", location ?: "?")
+            )
+            .setOnActionHandler(actionHandler)
+            .build()
+    }
+
+    fun setConfirm(location: String?, lesson: ScheduleResponse?) {
+        val name = lesson?.name ?: "?"
+        val lessonLocationList = lesson?.locationList?.toArray() ?: arrayOf<String>()
+
+        DialogBuilder(this).begin()
+            .setViewTemplate(DialogViewTemplate.QUESTION)
+            .setLocation(lessonLocationList[0] as String? ?: "?")
+            .setText(
+                DC.TEXT_ERROR_LOCATION
+                    .replace("LESSON", name)
+                    .replace("REAL_LOCATION", lessonLocationList.joinToString("or"))
+                    .replace("LOCATION", location ?: "?")
+            )
+            .setOnActionHandler(actionHandler)
+            .build()
+    }
+
+    fun setErrorPosition(lesson: ScheduleResponse?) {
+        val address = "TODO"
+
+        DialogBuilder(this).begin()
+            .setViewTemplate(DialogViewTemplate.ERROR)
+            .setIcon(DC.ICON_LOCATION)
+            .setTitle(DC.TITLE_ERROR)
+            .setText(DC.TEXT_ERROR_POSITION.replace("ADDRESS", address))
+            .setOnActionHandler(actionHandler)
+            .build()
+    }
+
+    fun setErrorPositionPermission(isDisabled: Boolean) {
+        val builder = DialogBuilder(this).begin()
+            .setViewTemplate(DialogViewTemplate.ERROR)
+            .setIcon(DC.ICON_ERROR_LOCATION)
+            .setTitle(DC.TITLE_ERROR)
+            .setText(DC.TEXT_ERROR_PERMISSION_POSITION)
+            .setActions(DC.BUTTON_ENABLE, null, DC.BUTTON_CANCEL)
+
+        if (isDisabled) {
+            builder
+                .setText(DC.TEXT_ERROR_PERMISSION_POSITION_DISABLED)
+                .setActions(DC.BUTTON_OK)
+                .setDismissible()
+        }
+
+        builder
+            .setOnActionHandler(actionHandler)
+            .build()
+    }
+
+    fun setError() {
+        DialogBuilder(this).begin().setViewTemplate(DialogViewTemplate.ERROR).build()
     }
 
     fun close() {
         this.dismiss()
-    }
-
-    private fun changeFragment(fragment: Fragment, inAnim: Int = 0, outAnim: Int = 0) {
-        if (isAdded && !childFragmentManager.isDestroyed) {
-            val transaction = childFragmentManager.beginTransaction()
-
-            Log.d("DIALOG", "Replacing fragment with ${fragment.toString()}")
-
-            if (!firstLoad) {
-                transaction.setCustomAnimations(
-                    android.R.anim.slide_in_left,
-                    android.R.anim.slide_out_right
-                )
-            } else {
-                firstLoad = false
-            }
-
-            transaction.replace(R.id.dialog_fragment_container, fragment)
-            // transaction.addToBackStack(null)
-            transaction.commit()
-
-            childFragmentManager.executePendingTransactions()
-        }
-    }
-
-    private fun changeActionFragment(fragment: Fragment, inAnim: Int = 0, outAnim: Int = 0) {
-        if (isAdded && !childFragmentManager.isDestroyed) {
-            val transaction = childFragmentManager.beginTransaction()
-
-            transaction.replace(R.id.dialog_action_container, fragment)
-            // transaction.addToBackStack(null)
-            transaction.commit()
-        }
     }
 }

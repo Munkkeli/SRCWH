@@ -8,7 +8,7 @@ import android.widget.Button
 import androidx.fragment.app.Fragment
 import com.example.srcwh.R
 
-class DialogActionFragment(val primary: String?, val secondary: String?, val cancel: String?, val callback: (action: DialogAction) -> Unit) : Fragment() {
+class DialogActionFragment(val primary: String?, val secondary: String?, val cancel: String?, val callback: DialogActionHandler) : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?

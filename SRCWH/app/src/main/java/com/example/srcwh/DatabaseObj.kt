@@ -12,9 +12,12 @@ import java.util.*
 import java.util.concurrent.ConcurrentLinkedDeque
 
 object DatabaseObj {
-    private lateinit var dataBase: UserDatabase
+    private var dataBase: UserDatabase? = null
     // user is the userdata clientside, stored in a variable that can be reached easily app-wide
     lateinit var user: ClientUser
+
+    val isConnected
+        get() = dataBase != null
 
     fun initDatabaseConnection(context: Context){
         dataBase = UserDatabase.get(context)
@@ -23,16 +26,16 @@ object DatabaseObj {
     fun addUserToDatabase(_user: User){
         user = parseToClientUser(_user)
         doAsync {
-            dataBase.userDao().insert(_user)
+            dataBase!!.userDao().insert(_user)
         }
     }
 
     fun addSettingsToDatabase(settings: AppSettings){
-        dataBase.settingsDao().insert(settings)
+        dataBase!!.settingsDao().insert(settings)
     }
 
     fun getUserData() : ClientUser?{
-        val user = dataBase.userDao().getAllUserData()
+        val user = dataBase!!.userDao().getAllUserData()
         if (user != null){
             return parseToClientUser(user)
         }
@@ -40,29 +43,28 @@ object DatabaseObj {
     }
 
     fun getSettingsData(): AppSettings?{
-        return dataBase.settingsDao().getSettings()
+        return dataBase!!.settingsDao().getSettings()
     }
 
     fun updateUserdata(): Int{
-        return dataBase.userDao().update(parseToDatabaseUser(user))
+        return dataBase!!.userDao().update(parseToDatabaseUser(user))
     }
 
     fun updateSettingsData(state: Int){
         Log.d("APP_SETTINGS", "updating darkmode settings witht the value of $state")
-        dataBase.settingsDao().update(AppSettings(1, state))
+        dataBase!!.settingsDao().update(AppSettings(1, state))
     }
 
     fun addScheduleToDatabase(lesson: ScheduleResponse){
         // first convert the lesson into a proper format
         // then insert into database
-        dataBase.scheduleDao().insert(parseToDatabaseSchedule(lesson))
+        dataBase!!.scheduleDao().insert(parseToDatabaseSchedule(lesson))
     }
 
     fun getSchedule(): List<ClientSchedule>?{
         // get schedule from database
         // convert it into client schedule
-        val temp = dataBase.scheduleDao().getSchedule()
-        println("KIKKEL elements in schedule db ${temp.count()}")
+        val temp = dataBase!!.scheduleDao().getSchedule()
         if(temp.count() > 0){
             val scheduleList: MutableList<ClientSchedule> = mutableListOf()
             for(element in temp){
@@ -74,11 +76,12 @@ object DatabaseObj {
     }
 
     fun clearSchedule(){
-        dataBase.scheduleDao().clearTable()
+        dataBase!!.scheduleDao().clearTable()
     }
 
     fun clearAllData(){
-        dataBase.clearAllTables()
+        dataBase!!.clearAllTables()
+
     }
 
     // since class conversion are sort of limited in kotlin, I wrote these ghetto ass function to work

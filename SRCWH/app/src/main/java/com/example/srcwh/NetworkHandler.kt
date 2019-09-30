@@ -1,48 +1,52 @@
 package com.example.srcwh
 
-import android.provider.ContactsContract
 import android.util.Log
 import com.google.gson.Gson
-import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.annotations.SerializedName
-import kotlinx.coroutines.channels.consumesAll
 import okhttp3.*
 import org.jetbrains.anko.uiThread
 import org.jetbrains.anko.doAsync
-import org.json.JSONObject
 import java.io.IOException
-import java.time.LocalDate
-import java.util.concurrent.TimeUnit
+
 
 data class LoginResponse(
-    @SerializedName("user")val user: LoginUser,
-    @SerializedName("token")val token: String)
+    @SerializedName("user") val user: LoginUser,
+    @SerializedName("token") val token: String
+)
 
-data class LoginUser (
-    @SerializedName("id")val id: String,
-    @SerializedName("firstName")val firstName: String,
+data class LoginUser(
+    @SerializedName("id") val id: String,
+    @SerializedName("firstName") val firstName: String,
     @SerializedName("lastName") val lastName: String,
-    @SerializedName("groupList")val groupList: ArrayList<String>,
-    @SerializedName("hash")val hash: String)
+    @SerializedName("groupList") val groupList: ArrayList<String>,
+    @SerializedName("hash") val hash: String
+)
 
 enum class AttendError {
     GENERIC,
-    SLAB,
     LESSON,
     LOCATION,
+    POSITION,
     UPDATE,
 }
 
-data class AttendResponse (
+data class AttendResponse(
     @SerializedName("success") val success: Boolean,
     @SerializedName("requiresUpdate") val requiresUpdate: Boolean,
-    @SerializedName("valid") val valid: AttendResponseValid)
+    @SerializedName("lesson") val lesson: ScheduleResponse?,
+    @SerializedName("location") val location: String,
+    @SerializedName("existing") val existing: String?,
+    @SerializedName("valid") val valid: AttendResponseValid
+)
 
-data class AttendResponseValid (
-    @SerializedName("slab") val slab: Boolean,
+data class AttendResponseValid(
     @SerializedName("lesson") val lesson: Boolean,
-    @SerializedName("position") val position: Boolean)
+    @SerializedName("location") val location: Boolean,
+    @SerializedName("position") val position: Boolean
+)
+
+typealias AttendCallback = (error: AttendError?, location: String?, lesson: ScheduleResponse?) -> Unit
 
 data class ScheduleResponse(
     @SerializedName("start") val start: String,
@@ -63,7 +67,11 @@ class NetworkHandler {
         return "Bearer $token"
     }
 
-    fun postLogin(username: String, password: String, callback: (error: String?, response: LoginResponse?) -> Unit) {
+    fun postLogin(
+        username: String,
+        password: String,
+        callback: (error: String?, response: LoginResponse?) -> Unit
+    ) {
         val jsonData = JsonObject()
         jsonData.addProperty("username", username)
         jsonData.addProperty("password", password)
@@ -78,21 +86,21 @@ class NetworkHandler {
         doAsync {
             try {
                 val response = client.newCall(request).execute()
-                if (response.isSuccessful){
+                if (response.isSuccessful) {
                     try {
                         val responseBody = response.body()?.string()
                         val responseJSON = Gson().fromJson(responseBody, LoginResponse::class.java)
                         Log.d("LOGIN", "Login is successful")
                         Log.d("LOGIN", responseBody)
                         uiThread { callback(null, responseJSON) }
-                    } catch (e: IOException){
+                    } catch (e: IOException) {
                         Log.e("LOGIN", e.toString())
                         uiThread { callback(GENERIC_ERROR, null) }
                     }
                 } else {
                     uiThread { callback(LOGIN_ERROR, null) }
                 }
-            } catch (e: IOException){
+            } catch (e: IOException) {
                 Log.e("LOGIN", e.toString())
                 uiThread { callback(GENERIC_ERROR, null) }
             }
@@ -114,27 +122,37 @@ class NetworkHandler {
         doAsync {
             try {
                 val response = client.newCall(request).execute()
-                if (response.isSuccessful){
+                if (response.isSuccessful) {
                     uiThread { callback(null) }
                 } else {
                     uiThread { callback(GENERIC_ERROR) }
                 }
-            } catch (e: IOException){
+            } catch (e: IOException) {
                 Log.e("GROUP", e.toString())
                 callback(GENERIC_ERROR)
             }
         }
     }
 
-    fun postCheckIn(token: String, slabId: String, coordinates: Pair<Double, Double>, confirmUpdate: Boolean, callback: (error: AttendError?) -> Unit) {
+    fun postAttend(
+        token: String,
+        slabId: String,
+        coordinates: Coordinates,
+        confirmUpdate: Boolean,
+        confirmOverride: Boolean,
+        callback: AttendCallback
+    ) {
         val jsonData = JsonObject()
         jsonData.addProperty("slab", slabId)
         jsonData.addProperty("confirmUpdate", confirmUpdate)
+        jsonData.addProperty("confirmOverride", confirmOverride)
 
         val jsonDataCoordinates = JsonObject()
-        jsonDataCoordinates.addProperty("x", coordinates.first)
-        jsonDataCoordinates.addProperty("y", coordinates.second)
+        jsonDataCoordinates.addProperty("x", coordinates.longitude)
+        jsonDataCoordinates.addProperty("y", coordinates.latitude)
         jsonData.add("coordinates", jsonDataCoordinates)
+
+        Log.d("TEST", jsonData.toString())
 
         val json = MediaType.parse("application/json; charset=utf-8")
         val body = RequestBody.create(json, jsonData.toString())
@@ -147,29 +165,39 @@ class NetworkHandler {
         doAsync {
             try {
                 val response = client.newCall(request).execute()
-                if (response.isSuccessful){
+                if (response.isSuccessful) {
                     val responseBody = response.body()?.string()
                     val responseJSON = Gson().fromJson(responseBody, AttendResponse::class.java)
+                    val lesson = responseJSON.lesson
+                    val location = responseJSON.location
+
+                    Log.d("TEST", responseBody)
+
+                    fun cb(error: AttendError?, location: String?, lesson: ScheduleResponse?) {
+                        uiThread {
+                            callback(error, location, lesson)
+                        }
+                    }
 
                     when {
-                        responseJSON.success -> uiThread { callback(null) }
-                        responseJSON.requiresUpdate -> uiThread { callback(AttendError.UPDATE) }
-                        !responseJSON.valid.slab -> uiThread { callback(AttendError.SLAB) }
-                        !responseJSON.valid.lesson ->  uiThread { callback(AttendError.LESSON) }
-                        !responseJSON.valid.position -> uiThread { callback(AttendError.LOCATION) }
-                        else -> uiThread { callback(AttendError.GENERIC) }
+                        responseJSON.success -> cb(null, location, lesson)
+                        responseJSON.requiresUpdate -> cb(AttendError.UPDATE, location, lesson)
+                        !responseJSON.valid.lesson -> cb(AttendError.LESSON, location, lesson)
+                        !responseJSON.valid.location -> cb(AttendError.LOCATION, location, lesson)
+                        !responseJSON.valid.position -> cb(AttendError.POSITION, location, lesson)
+                        else -> cb(AttendError.GENERIC, location, lesson)
                     }
                 } else {
-                    uiThread { callback(AttendError.GENERIC) }
+                    uiThread { callback(AttendError.GENERIC, null, null) }
                 }
-            } catch (e: IOException){
+            } catch (e: IOException) {
                 Log.e("ATTEND", e.toString())
-                callback(AttendError.GENERIC)
+                callback(AttendError.GENERIC, null, null)
             }
         }
     }
 
-    fun getSchedule(callback:() -> Unit ){
+    fun getSchedule(callback: () -> Unit) {
         try {
             doAsync {
                 println("SCHEDULE  starting schedule")
@@ -177,25 +205,32 @@ class NetworkHandler {
                     .url(SCHEDULE_URL)
                     .header("Authorization", "Bearer ${DatabaseObj.user.token!!}")
                     .build()
-                    client.newCall(request).enqueue(object : Callback {
+                client.newCall(request).enqueue(object : Callback {
                     override fun onFailure(call: Call, e: IOException) {
                         Log.e("SCHEDULE", e.toString())
                     }
+
                     override fun onResponse(call: Call, response: Response) {
                         // cast the response into proper format
                         val responseBody = response.body()?.string()
-                        Log.d("SCHEDULE", responseBody)
-                        val responseJSON = Gson().fromJson(responseBody, Array<ScheduleResponse>::class.java)
-                        for(lesson in responseJSON){
+
+                        val responseJSON =
+                            Gson().fromJson(responseBody, Array<ScheduleResponse>::class.java)
+                        for (lesson in responseJSON) {
                             DatabaseObj.addScheduleToDatabase(lesson)
                         }
+
+                        for (e in DatabaseObj.getSchedule()!!) {
+                            println(e)
+                        }
+
                         uiThread { callback() }
                     }
                 })
 
             }
 
-        }catch (e: IOException){
+        } catch (e: IOException) {
             Log.e("SCHEDULE", e.toString())
 
         }

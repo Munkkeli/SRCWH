@@ -1,14 +1,19 @@
 package com.example.srcwh.dialog
 
 import android.content.Context
+import android.util.Log
 import android.widget.FrameLayout
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import com.example.srcwh.ScheduleResponse
 
 enum class DialogAction {
     PRIMARY,
     SECONDARY,
     CANCEL
 }
+
+typealias ActionCallback = ((action: DialogAction) -> Unit)?
 
 class DialogHandler {
     var context: Context
@@ -30,10 +35,16 @@ class DialogHandler {
         get() = dialogContainerFragment != null && dialogContainerFragment!!.isVisible
 
     private fun dialogActionHandler(action: DialogAction) {
-        if (currentActionHandler != null) currentActionHandler!!(action)
+        Log.d("DIALOG", "dialogActionHandler $action currentActionHandler $currentActionHandler")
+
+        if (currentActionHandler != null) {
+            currentActionHandler!!(action)
+        } else if (action == DialogAction.PRIMARY || action == DialogAction.CANCEL) {
+            close()
+        }
     }
 
-    fun open(firstFragment: String = "loading", locationDisabled: Boolean = false, callback: (action: DialogAction) -> Unit = {}) {
+    fun open(initialState: DialogInitialState = DialogInitialState.LOADING, callback: ActionCallback? = null) {
         currentActionHandler = callback
 
         val transaction = fragmentManager.beginTransaction()
@@ -43,32 +54,42 @@ class DialogHandler {
 
         // transaction.addToBackStack(null)
 
-        dialogContainerFragment = DialogContainerFragment(
-            firstFragment,
-            locationDisabled
-        ) { action -> dialogActionHandler(action) }
-
-        dialogContainerFragment!!.show(transaction, "dialog")
+        if (isOpen) {
+            dialogContainerFragment!!.setState(initialState)
+        } else {
+            dialogContainerFragment = DialogContainerFragment(initialState) { action -> dialogActionHandler(action) }
+            dialogContainerFragment!!.show(transaction, "dialog")
+        }
     }
 
     fun close() {
         dialogContainerFragment!!.close()
     }
 
-    fun setCheckIn() {
-        dialogContainerFragment!!.setCheckIn()
+    fun setAttended(location: String?, lesson: ScheduleResponse?) {
+        dialogContainerFragment!!.setAttended(location, lesson)
     }
 
-    fun setConfirm() {
-        dialogContainerFragment!!.setConfirm()
+    fun setOverride(location: String?, lesson: ScheduleResponse?, callback: ActionCallback? = null) {
+        if (callback != null) currentActionHandler = callback
+        dialogContainerFragment!!.setOverride(location, lesson)
     }
 
-    fun setErrorLocation() {
-        dialogContainerFragment!!.setErrorLocation()
+    fun setConfirm(location: String?, lesson: ScheduleResponse?, callback: ActionCallback? = null) {
+        if (callback != null) currentActionHandler = callback
+        dialogContainerFragment!!.setConfirm(location, lesson)
     }
 
-    fun setErrorPermissionLocation(locationDisabled: Boolean, callback: (action: DialogAction) -> Unit) {
+    fun setErrorPosition(lesson: ScheduleResponse?) {
+        dialogContainerFragment!!.setErrorPosition(lesson)
+    }
+
+    fun setError() {
+        dialogContainerFragment!!.setError()
+    }
+
+    fun setErrorPositionPermission(locationDisabled: Boolean, callback: (action: DialogAction) -> Unit) {
         currentActionHandler = callback
-        dialogContainerFragment!!.setErrorPermissionLocation(locationDisabled)
+        dialogContainerFragment!!.setErrorPositionPermission(locationDisabled)
     }
 }
