@@ -11,18 +11,31 @@
         android:layout_height="128dp"
         android:layout_marginTop="64dp"
         android:text="C312"
+        android:importantForAccessibility="no"
         android:textAlignment="center"
         android:gravity="center"
         android:textSize="60sp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:textColor="@color/colorDark"/>
 
     <ImageView
         android:layout_marginTop="64dp"
         android:id="@+id/dialog_success_icon"
         android:layout_width="match_parent"
         android:layout_height="128dp"
-        android:tint="@color/colorPrimary"
+        android:importantForAccessibility="no"
+        android:tint="@color/colorDark"
         app:srcCompat="@drawable/ic_checkbox_marked_circle_outline" />
+
+    <ProgressBar
+        android:layout_marginTop="64dp"
+        android:id="@+id/dialog_loading"
+        android:layout_width="match_parent"
+        android:layout_height="128dp"
+        android:contentDescription="Loading"
+        android:indeterminateTintMode="src_atop"
+        android:indeterminateTint="@color/colorDark"
+        android:layout_gravity="center" />
 
     <TextView
         android:id="@+id/dialog_success_title"
@@ -30,14 +43,15 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="You're in"
+        android:importantForAccessibility="no"
         android:textAlignment="center"
-        android:textColor="@color/colorPrimary"
+        android:textColor="@color/colorDark"
         android:textSize="32sp"
         android:textStyle="bold" />
 
     <TextView
-        android:paddingLeft="48dp"
-        android:paddingRight="48dp"
+        android:paddingLeft="32dp"
+        android:paddingRight="32dp"
         android:layout_marginTop="6dp"
         android:layout_marginBottom="32dp"
         android:id="@+id/dialog_success_text"

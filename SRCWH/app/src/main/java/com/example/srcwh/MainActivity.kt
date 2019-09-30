@@ -1,6 +1,5 @@
 package com.example.srcwh
 
-import android.Manifest
 import android.content.Intent
 import android.nfc.NdefMessage
 import android.nfc.NfcAdapter
@@ -9,15 +8,11 @@ import android.os.Bundle
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import com.google.android.material.snackbar.Snackbar
 import android.app.PendingIntent
-import android.content.pm.PackageManager
-import android.location.Location
 import android.util.Log
 import com.example.srcwh.dialog.DialogAction
 import com.example.srcwh.dialog.DialogHandler
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.srcwh.dialog.DialogViewState
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
+import com.example.srcwh.dialog.DialogInitialState
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -75,9 +70,9 @@ class MainActivity : AppCompatActivity() {
             if (error != null || coordinates == null) {
                 // Did not get the location
                 when (error) {
-                    LocationError.DENIED -> dialogHandler.open(DialogViewState.POSITION_ERROR)
-                    LocationError.BLOCKED -> dialogHandler.open(DialogViewState.POSITION_BLOCK_ERROR)
-                    LocationError.EXPLAIN -> dialogHandler.open(DialogViewState.POSITION_ERROR) { action ->
+                    LocationError.DENIED -> dialogHandler.open(DialogInitialState.POSITION_ERROR)
+                    LocationError.BLOCKED -> dialogHandler.open(DialogInitialState.POSITION_BLOCK_ERROR)
+                    LocationError.EXPLAIN -> dialogHandler.open(DialogInitialState.POSITION_ERROR) { action ->
                         dialogHandler.close()
                         if (action == DialogAction.PRIMARY) {
                             showAlertDialog(slabId, confirmUpdate, confirmOverride, true)
@@ -85,7 +80,7 @@ class MainActivity : AppCompatActivity() {
                             dialogHandler.close()
                         }
                     }
-                    else -> dialogHandler.open(DialogViewState.POSITION_BLOCK_ERROR) // TODO: Maybe error page is required?
+                    else -> dialogHandler.open(DialogInitialState.ERROR) // TODO: Maybe error page is required?
                 }
             } else {
                 // Did get a location
@@ -103,7 +98,7 @@ class MainActivity : AppCompatActivity() {
 
                     if (error != null) {
                         when (error) {
-                            AttendError.LESSON -> throw Error("Implement this")
+                            AttendError.LESSON -> dialogHandler.setError()
                             AttendError.LOCATION -> dialogHandler.setConfirm(
                                 location,
                                 lesson
@@ -133,7 +128,7 @@ class MainActivity : AppCompatActivity() {
                                     dialogHandler.close()
                                 }
                             }
-                            else -> throw Error("Implement this")
+                            else -> dialogHandler.setError()
                         }
                     } else {
                         dialogHandler.setAttended(location, lesson)

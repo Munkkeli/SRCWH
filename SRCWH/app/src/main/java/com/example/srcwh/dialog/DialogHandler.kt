@@ -44,7 +44,7 @@ class DialogHandler {
         }
     }
 
-    fun open(initialState: DialogViewState = DialogViewState.LOADING, callback: ActionCallback? = null) {
+    fun open(initialState: DialogInitialState = DialogInitialState.LOADING, callback: ActionCallback? = null) {
         currentActionHandler = callback
 
         val transaction = fragmentManager.beginTransaction()
@@ -82,6 +82,10 @@ class DialogHandler {
 
     fun setErrorPosition(lesson: ScheduleResponse?) {
         dialogContainerFragment!!.setErrorPosition(lesson)
+    }
+
+    fun setError() {
+        dialogContainerFragment!!.setError()
     }
 
     fun setErrorPositionPermission(locationDisabled: Boolean, callback: (action: DialogAction) -> Unit) {

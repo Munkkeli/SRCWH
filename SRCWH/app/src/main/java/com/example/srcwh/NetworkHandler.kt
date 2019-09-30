@@ -170,6 +170,8 @@ class NetworkHandler {
                     val lesson = responseJSON.lesson
                     val location = responseJSON.location
 
+                    Log.d("TEST", responseBody)
+
                     fun cb(error: AttendError?, location: String?, lesson: ScheduleResponse?) {
                         uiThread {
                             callback(error, location, lesson)

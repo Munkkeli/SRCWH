@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
@@ -15,6 +14,7 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="8dp"
         android:text="Button"
+        android:accessibilityTraversalBefore="@id/dialog_button_cancel"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -27,6 +27,8 @@
         android:layout_marginTop="16dp"
         android:layout_marginEnd="8dp"
         android:text="Button"
+        android:accessibilityTraversalBefore="@id/dialog_button_cancel"
+        android:accessibilityTraversalAfter="@id/dialog_button_primary"
         android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/dialog_button_primary"
@@ -41,6 +43,9 @@
         android:layout_marginTop="16dp"
         android:text="Button"
         android:layout_marginBottom="8dp"
+        android:accessibilityTraversalAfter="@id/dialog_button_secondary"
+        android:textColor="@color/colorDark"
+        app:iconTint="@color/colorDark"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
