@@ -18,7 +18,6 @@ class MainAdapter(val schedule:List<ClientSchedule>?): RecyclerView.Adapter<Cust
     }
 
     override fun getItemCount(): Int {
-        println("KIKKEL " + schedule!!.count())
         return schedule!!.count()
     }
 

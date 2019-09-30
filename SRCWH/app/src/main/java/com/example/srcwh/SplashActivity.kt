@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import kotlin.reflect.KClass
 
 class SplashActivity : AppCompatActivity() {
@@ -11,6 +12,21 @@ class SplashActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         val user = getUserData()
+        val settings = getCurrentSettings()
+
+        if(settings == null){
+            // no settings implemented yet, insert basic settings
+            Log.d("SPLASH", "settings null")
+            DatabaseObj.addSettingsToDatabase(AppSettings(1, 0))
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        }else{
+            // settings were found, change the app theme
+            Log.d("SPLASH", "settings found! darkmode is: ${settings.darkMode}")
+            when(settings.darkMode){
+                1 ->   AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                0 ->  AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            }
+        }
 
         Log.d("SPLASH", "Went to splash screen")
         Log.d("SPLASH", intent.action)
@@ -33,5 +49,9 @@ class SplashActivity : AppCompatActivity() {
     private fun getUserData() : ClientUser?{
         DatabaseObj.initDatabaseConnection(this)
         return DatabaseObj.getUserData()
+    }
+
+    private fun getCurrentSettings(): AppSettings?{
+        return DatabaseObj.getSettingsData()
     }
 }

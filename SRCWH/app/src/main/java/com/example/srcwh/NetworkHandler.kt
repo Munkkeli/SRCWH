@@ -13,6 +13,7 @@ import org.jetbrains.anko.doAsync
 import org.json.JSONObject
 import java.io.IOException
 import java.time.LocalDate
+import java.util.concurrent.TimeUnit
 
 data class LoginResponse(
     @SerializedName("user")val user: LoginUser,
@@ -171,6 +172,7 @@ class NetworkHandler {
     fun getSchedule(callback:() -> Unit ){
         try {
             doAsync {
+                println("SCHEDULE  starting schedule")
                 val request = Request.Builder()
                     .url(SCHEDULE_URL)
                     .header("Authorization", "Bearer ${DatabaseObj.user.token!!}")
@@ -182,16 +184,11 @@ class NetworkHandler {
                     override fun onResponse(call: Call, response: Response) {
                         // cast the response into proper format
                         val responseBody = response.body()?.string()
+                        Log.d("SCHEDULE", responseBody)
                         val responseJSON = Gson().fromJson(responseBody, Array<ScheduleResponse>::class.java)
                         for(lesson in responseJSON){
                             DatabaseObj.addScheduleToDatabase(lesson)
                         }
-
-                        for(e in DatabaseObj.getSchedule()!!){
-                            println(e)
-                        }
-
-
                         uiThread { callback() }
                     }
                 })
@@ -203,4 +200,5 @@ class NetworkHandler {
 
         }
     }
+
 }

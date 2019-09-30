@@ -33,3 +33,6 @@ const val DIALOG_TEXT_ERROR_LOCATION = "“LESSON” is held in classroom LOCATI
 const val DIALOG_TEXT_ATTENDED = "You have checked in to “LESSON” at LOCATION"
 const val DIALOG_TEXT_ERROR_PERMISSION_LOCATION = "Please enable location to attend this lesson."
 const val DIALOG_TEXT_ERROR_PERMISSION_LOCATION_DISABLED = "You have disabled location. Please enable location to attend this lesson."
+
+const val SHARED_PREFERENCES = "sharedPrefs"
+const val DARK_MODE_ON = "false"

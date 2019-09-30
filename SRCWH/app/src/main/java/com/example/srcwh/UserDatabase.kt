@@ -43,6 +43,13 @@ data class Schedule(
     val attended: String?
 )
 
+@Entity
+data class AppSettings(
+    @PrimaryKey
+    val id: Int,
+    val darkMode: Int
+)
+
 data class ClientSchedule(
     val start: LocalDateTime,
     val end: LocalDateTime,
@@ -66,7 +73,7 @@ interface UserDao {
     fun insert(user: User): Long
 
     @Update
-    fun update(user: User)
+    fun update(user: User): Int
 }
 
 @Dao
@@ -80,13 +87,28 @@ interface ScheduleDao{
     @Update
     fun update(lesson: Schedule)
 
+    @Query("DELETE FROM Schedule")
+    fun clearTable()
+}
+
+@Dao
+interface SettingsDao{
+    @Query("SELECT * FROM AppSettings")
+    fun getSettings(): AppSettings
+
+    @Update
+    fun update(settings: AppSettings)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insert(settings: AppSettings)
 }
 
 
-@Database(entities = [User::class, Schedule::class], version = 1)
+@Database(entities = [User::class, Schedule::class, AppSettings::class], version = 1)
 abstract class UserDatabase : RoomDatabase(){
     abstract fun userDao(): UserDao
     abstract fun scheduleDao(): ScheduleDao
+    abstract fun settingsDao(): SettingsDao
 
     companion object{
         private var sInstance: UserDatabase? = null

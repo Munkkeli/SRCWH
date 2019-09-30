@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var nfcAdapter: NfcAdapter
     private lateinit var pendingIntent: PendingIntent
     private lateinit var schedule: List<ClientSchedule>
-
+    private lateinit var networkHandler: NetworkHandler
     private lateinit var dialogHandler: DialogHandler
 
     private var locationRequestCallback: ((granted: Boolean, explain: Boolean?) -> Unit)? = null
@@ -34,8 +34,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        DatabaseObj.initDatabaseConnection(this)
         DatabaseObj.user = DatabaseObj.getUserData()!!
-        val networkHandler = NetworkHandler()
+        networkHandler = NetworkHandler()
         networkHandler.getSchedule{generateView()}
         // first thing, we need to establish the database connection, and check if current userdata exists
         // getUserData() both initiates the database connection, and returns an user -object IF one exists.
@@ -47,6 +48,8 @@ class MainActivity : AppCompatActivity() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         dialogHandler = DialogHandler(this, supportFragmentManager)
+
+        settings_button.setOnClickListener { view -> openSettings()}
 
         // if the application was opened via nfc reader, this gets called
         if(intent != null){
@@ -157,8 +160,13 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        // reload the nfc reader to make sure it's up and running
         setupNfc()
         nfcAdapter.enableForegroundDispatch(this, pendingIntent, null, null)
+
+        // also as a potato solution we have to get the new schedule, since the group might have been changed
+        networkHandler.getSchedule{generateView()}
+        recyclerview_main.adapter?.notifyDataSetChanged()
     }
 
     override fun onPause() {
@@ -169,7 +177,6 @@ class MainActivity : AppCompatActivity() {
 
     // this is here to catch some situations of reading nfc
     override fun onNewIntent(intent: Intent?) {
-        println("KIKKEL  on new intent called")
         super.onNewIntent(intent)
         if(intent != null){ processIncomingIntent(intent)}
     }
@@ -205,6 +212,11 @@ class MainActivity : AppCompatActivity() {
             // for some reason the incomint intent.action is not the one we want
                 return
         }
+    }
+
+    private fun openSettings(){
+        val activityIntent = Intent(this, SettingsActivity::class.java)
+        startActivity(activityIntent)
     }
 
 

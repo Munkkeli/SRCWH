@@ -1,6 +1,7 @@
 package com.example.srcwh
 
 import android.content.Context
+import android.util.Log
 import okhttp3.Response
 import org.jetbrains.anko.doAsync
 import java.time.LocalDate
@@ -24,9 +25,11 @@ object DatabaseObj {
         doAsync {
             dataBase.userDao().insert(_user)
         }
-
     }
 
+    fun addSettingsToDatabase(settings: AppSettings){
+        dataBase.settingsDao().insert(settings)
+    }
 
     fun getUserData() : ClientUser?{
         val user = dataBase.userDao().getAllUserData()
@@ -36,7 +39,18 @@ object DatabaseObj {
         return user
     }
 
-    //later an update function here...?
+    fun getSettingsData(): AppSettings?{
+        return dataBase.settingsDao().getSettings()
+    }
+
+    fun updateUserdata(): Int{
+        return dataBase.userDao().update(parseToDatabaseUser(user))
+    }
+
+    fun updateSettingsData(state: Int){
+        Log.d("APP_SETTINGS", "updating darkmode settings witht the value of $state")
+        dataBase.settingsDao().update(AppSettings(1, state))
+    }
 
     fun addScheduleToDatabase(lesson: ScheduleResponse){
         // first convert the lesson into a proper format
@@ -48,6 +62,7 @@ object DatabaseObj {
         // get schedule from database
         // convert it into client schedule
         val temp = dataBase.scheduleDao().getSchedule()
+        println("KIKKEL elements in schedule db ${temp.count()}")
         if(temp.count() > 0){
             val scheduleList: MutableList<ClientSchedule> = mutableListOf()
             for(element in temp){
@@ -56,10 +71,13 @@ object DatabaseObj {
             return scheduleList
         }
         else return null
-
     }
 
-    fun clearData(){
+    fun clearSchedule(){
+        dataBase.scheduleDao().clearTable()
+    }
+
+    fun clearAllData(){
         dataBase.clearAllTables()
     }
 
