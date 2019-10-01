@@ -229,12 +229,18 @@ class DialogBuilder(private val dialog: DialogContainerFragment) {
         if (dialog.isAdded && !dialog.childFragmentManager.isDestroyed) {
             val transaction = dialog.childFragmentManager.beginTransaction()
 
-            Log.d("DIALOG", "Replacing fragment with ${fragment.toString()}")
+            Log.d("DIALOG", "Replacing fragment with $fragment")
+
+            var animationIn = android.R.anim.slide_in_left
+            if (isLoading) animationIn = R.anim.fade_in_fast
+
+            var animationOut = R.anim.fade_out_fast
+            if (!isLoading) animationOut = R.anim.fade_out_fast
 
             if (!dialog.isFirstLoad) {
                 transaction.setCustomAnimations(
-                    android.R.anim.slide_in_left,
-                    android.R.anim.slide_out_right
+                    animationIn,
+                    animationOut
                 )
             } else {
                 dialog.isFirstLoad = false

@@ -12,8 +12,8 @@ class DialogConstants(contect: Context) {
     val ICON_LOADING = R.drawable.ic_radiobox_blank
     val ICON_CHECK = R.drawable.ic_checkbox_marked_circle_outline
     val ICON_LOCATION = R.drawable.ic_map_marker_circle
-    val ICON_ERROR_LOCATION = R.drawable.ic_map_marker_remove
-    val ICON_OVERRIDE = R.drawable.ic_refresh
+    val ICON_ERROR_LOCATION = R.drawable.ic_location_error
+    val ICON_OVERRIDE = R.drawable.ic_override
     val ICON_ERROR = R.drawable.ic_emoticon_sad_outline
 
     val TITLE_LOADING = ""

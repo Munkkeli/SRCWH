@@ -41,7 +41,7 @@ class DialogContentFragment(
             this.location != null -> {
                 icon.visibility = View.GONE
                 location.visibility = View.VISIBLE
-                location.text = this.location
+                location.text = HtmlCompat.fromHtml(this.location, HtmlCompat.FROM_HTML_MODE_LEGACY)
             }
             this.icon == DialogConstants(context!!).ICON_LOADING -> {
                 icon.visibility = View.GONE
@@ -56,7 +56,7 @@ class DialogContentFragment(
         text.text = HtmlCompat.fromHtml(this.text, HtmlCompat.FROM_HTML_MODE_LEGACY)
 
         if (isSuccess) {
-            val color = context!!.getColor(R.color.colorAccent)
+            val color = context!!.getColor(R.color.colorSuccess)
             icon.setColorFilter(color)
             title.textColor = color
         }

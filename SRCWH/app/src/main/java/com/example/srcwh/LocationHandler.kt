@@ -47,7 +47,7 @@ class LocationHandler {
             } else {
                 fusedLocationClient.lastLocation
                     .addOnSuccessListener { location: Location? ->
-                        Log.d("LOCATION", "Last location returned $location")
+                        Log.d("LOCATION", "Last location returned ${location?.longitude}, ${location?.latitude}")
 
                         if (location == null) {
                             callback(LocationError.GENERIC, null)

@@ -130,7 +130,7 @@ class NetworkHandler {
                 }
             } catch (e: IOException) {
                 Log.e("GROUP", e.toString())
-                callback(GENERIC_ERROR)
+                uiThread { callback(GENERIC_ERROR) }
             }
         }
     }
@@ -172,6 +172,8 @@ class NetworkHandler {
                     val lesson = responseJSON.lesson
                     val location = responseJSON.location
 
+                    Log.d("NETWORK", responseBody)
+
                     fun cb(error: AttendError?, location: String?, lesson: ScheduleResponse?) {
                         uiThread {
                             callback(error, location, lesson)
@@ -191,7 +193,7 @@ class NetworkHandler {
                 }
             } catch (e: IOException) {
                 Log.e("ATTEND", e.toString())
-                callback(AttendError.GENERIC, null, null)
+                uiThread { callback(AttendError.GENERIC, null, null) }
             }
         }
     }

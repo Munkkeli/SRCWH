@@ -1,9 +1,12 @@
 package com.example.srcwh.dialog
 
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.ViewGroup
 import android.view.LayoutInflater
 import android.view.View
+import android.view.Window
 import androidx.fragment.app.DialogFragment
 import com.example.srcwh.*
 
@@ -33,6 +36,12 @@ class DialogContainerFragment(
         val view = layoutInflater.inflate(R.layout.dialog_success, null)
 
         DC = DialogConstants(context!!)
+
+        // Visual improvements
+        if (dialog != null && dialog!!.window != null) {
+            dialog!!.window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            dialog!!.window.requestFeature(Window.FEATURE_NO_TITLE)
+        }
 
         this.containerView = view
         setState(initialState)
@@ -81,7 +90,7 @@ class DialogContainerFragment(
             .setText(
                 DC.TEXT_OVERRIDE
                     .replace("LESSON", name)
-                    .replace("LOCATION", location ?: "?")
+                    .replace("LOCATION", "<b>${location ?: "?"}</b>")
             )
             .setOnActionHandler(actionHandler)
             .build()
@@ -91,14 +100,22 @@ class DialogContainerFragment(
         val name = lesson?.name ?: "?"
         val lessonLocationList = lesson?.locationList?.toArray() ?: arrayOf<String>()
 
+        // If classname starts with MM, remove MM
+        var lessonLocation = lessonLocationList[0] as String? ?: "?"
+        if (lessonLocation.length > 2 && lessonLocation[0] == 'M' && lessonLocation[1] == 'M') {
+            lessonLocation = lessonLocation.drop(2)
+        }
+
+        var realLessonLocation = lessonLocationList.joinToString("or") { x -> "<b>$x</b>" }
+
         DialogBuilder(this).begin()
             .setViewTemplate(DialogViewTemplate.QUESTION)
-            .setLocation(lessonLocationList[0] as String? ?: "?")
+            .setLocation("$lessonLocation<span style=\"color: #979797\"><small><small>?</small></small></span>")
             .setText(
                 DC.TEXT_ERROR_LOCATION
                     .replace("LESSON", name)
-                    .replace("REAL_LOCATION", lessonLocationList.joinToString("or"))
-                    .replace("LOCATION", location ?: "?")
+                    .replace("REAL_LOCATION", realLessonLocation)
+                    .replace("LOCATION", "<b>${location ?: "?"}</b>")
             )
             .setOnActionHandler(actionHandler)
             .build()
