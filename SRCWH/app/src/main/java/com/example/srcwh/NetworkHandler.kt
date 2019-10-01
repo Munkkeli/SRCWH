@@ -1,5 +1,6 @@
 package com.example.srcwh
 
+import android.os.Debug
 import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.JsonObject
@@ -171,8 +172,6 @@ class NetworkHandler {
                     val lesson = responseJSON.lesson
                     val location = responseJSON.location
 
-                    Log.d("TEST", responseBody)
-
                     fun cb(error: AttendError?, location: String?, lesson: ScheduleResponse?) {
                         uiThread {
                             callback(error, location, lesson)
@@ -197,43 +196,66 @@ class NetworkHandler {
         }
     }
 
-    fun getSchedule(callback: () -> Unit) {
-        try {
-            doAsync {
-                println("SCHEDULE  starting schedule")
-                val request = Request.Builder()
-                    .url(SCHEDULE_URL)
-                    .header("Authorization", "Bearer ${DatabaseObj.user.token!!}")
-                    .build()
-                client.newCall(request).enqueue(object : Callback {
-                    override fun onFailure(call: Call, e: IOException) {
-                        Log.e("SCHEDULE", e.toString())
+    fun getTokenValid(callback: (valid: Boolean) -> Unit) {
+        val request = Request.Builder()
+            .url(CHECK_URL)
+            .header("Authorization", "Bearer ${DatabaseObj.user.token!!}")
+            .post(RequestBody.create(MediaType.parse("text/plain"), ""))
+            .build()
+
+        Log.d("NETWORK", "getTokenValid")
+
+        doAsync {
+            try {
+                val response = client.newCall(request).execute()
+
+                Log.d("NETWORK", response.code().toString())
+
+                if (response.isSuccessful) {
+                    uiThread { callback(true) }
+                } else {
+                    // Currently, only mark token as bad if 403 is returned
+                    if (response.code() == 403) {
+                        uiThread { callback(false) }
+                    } else {
+                        uiThread { callback(true) }
                     }
-
-                    override fun onResponse(call: Call, response: Response) {
-                        // cast the response into proper format
-                        val responseBody = response.body()?.string()
-
-                        val responseJSON =
-                            Gson().fromJson(responseBody, Array<ScheduleResponse>::class.java)
-                        for (lesson in responseJSON) {
-                            DatabaseObj.addScheduleToDatabase(lesson)
-                        }
-
-                        for (e in DatabaseObj.getSchedule()!!) {
-                            println(e)
-                        }
-
-                        uiThread { callback() }
-                    }
-                })
-
+                }
+            } catch (e: IOException) {
+                Log.e("NETWORK", e.toString())
+                uiThread { callback(true) }
             }
-
-        } catch (e: IOException) {
-            Log.e("SCHEDULE", e.toString())
-
         }
     }
 
+    fun getSchedule(callback: () -> Unit) {
+        val request = Request.Builder()
+            .url(SCHEDULE_URL)
+            .header("Authorization", "Bearer ${DatabaseObj.user.token!!}")
+            .build()
+
+        Log.d("NETWORK", "getSchedule")
+
+        doAsync {
+            try {
+                val response = client.newCall(request).execute()
+                if (response.isSuccessful) {
+                    val responseBody = response.body()?.string()
+                    val responseJSON = Gson().fromJson(responseBody, Array<ScheduleResponse>::class.java)
+
+                    for (lesson in responseJSON) {
+                        DatabaseObj.addScheduleToDatabase(lesson)
+                    }
+
+                    uiThread { callback() }
+                } else {
+                    uiThread { callback() }
+                }
+            } catch (e: IOException) {
+                Log.e("NETWORK", e.toString())
+                uiThread { callback() }
+            }
+        }
+
+    }
 }

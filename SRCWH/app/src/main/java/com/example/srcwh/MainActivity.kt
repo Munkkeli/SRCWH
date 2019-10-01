@@ -39,6 +39,19 @@ class MainActivity : AppCompatActivity() {
         // getUserData() both initiates the database connection, and returns an user -object IF one exists.
         // if the user object is null, then there was no data. (usually meaning first time user)
 
+        // Check if the login token is still valid
+        networkHandler.getTokenValid { valid ->
+            if (!valid) {
+                DatabaseObj.clearAllData() // TODO: Only clear login...
+
+                // Navigate to login
+                val intent = Intent(this, LoginActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK and Intent.FLAG_ACTIVITY_NEW_TASK
+                startActivity(intent)
+                finish()
+            }
+        }
+
         // setup the nfc reader
         setupNfc()
 

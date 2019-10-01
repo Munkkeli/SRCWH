@@ -7,6 +7,7 @@ const val LOGIN_URL = "${BASE_URL}/login"
 const val UPDATE_URL = "${BASE_URL}/update"
 const val ATTEND_URL = "${BASE_URL}/attend"
 const val SCHEDULE_URL = "${BASE_URL}/schedule"
+const val CHECK_URL = "${BASE_URL}/check"
 
 const val AUTH_HEADER = "Authorization"
 

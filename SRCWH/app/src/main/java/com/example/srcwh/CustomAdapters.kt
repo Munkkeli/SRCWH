@@ -9,7 +9,7 @@ import kotlinx.android.synthetic.main.lesson_card.view.*
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-class MainAdapter(val schedule:List<ClientSchedule>?): RecyclerView.Adapter<CustomViewHolder>(){
+class MainAdapter(val schedule: List<ClientSchedule>?): RecyclerView.Adapter<CustomViewHolder>(){
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CustomViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
@@ -18,7 +18,7 @@ class MainAdapter(val schedule:List<ClientSchedule>?): RecyclerView.Adapter<Cust
     }
 
     override fun getItemCount(): Int {
-        return schedule!!.count()
+        return schedule?.count() ?: 0
     }
 
     override fun onBindViewHolder(holder: CustomViewHolder, position: Int) {
