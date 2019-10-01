@@ -27,7 +27,7 @@ class MainAdapter(val schedule:List<ClientSchedule>?): RecyclerView.Adapter<Cust
         holder.view.classroom_textview.text = schedule?.get(position)?.locationList?.get(0)
         holder.view.address_textview.text = "address wip"
         if(schedule?.get(position)?.attended != null) holder.view.checkmark_imageview.setImageResource(R.drawable.ic_checkbox_marked_circle_outline)
-        else holder.view.checkmark_imageview.setImageResource(R.drawable.placeholder_ic_check_box_outline_blank_black_24dp)
+        else holder.view.checkmark_imageview.setImageResource(R.drawable.ic_radiobox_blank)
     }
 
     private fun dateTimeFormatter(date: LocalDateTime): String{

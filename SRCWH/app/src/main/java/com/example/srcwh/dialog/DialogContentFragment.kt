@@ -56,7 +56,7 @@ class DialogContentFragment(
         text.text = HtmlCompat.fromHtml(this.text, HtmlCompat.FROM_HTML_MODE_LEGACY)
 
         if (isSuccess) {
-            val color = context!!.getColor(R.color.colorPrimary)
+            val color = context!!.getColor(R.color.colorAccent)
             icon.setColorFilter(color)
             title.textColor = color
         }
