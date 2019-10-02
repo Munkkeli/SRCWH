@@ -6,4 +6,5 @@
     <color name="colorIcon">#929292</color>
     <color name="colorDark">#4B4B4B</color>
     <color name="colorIconBackground">#FFFFFF</color>
+    <color name="common_border_color">#313131</color>
 </resources>

@@ -15,4 +15,6 @@
     <string name="dark_mode_switch_text">On</string>
 
     <string name="dialog_text_attended">You have checked in to “LESSON” at LOCATION</string>
+
+    <string name="card_attended">ATTENDED</string>
 </resources>

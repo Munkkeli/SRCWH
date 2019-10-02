@@ -85,6 +85,16 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/ic_checkbox_marked_circle_outline" />
 
+            <ImageView
+                android:id="@+id/lesson_state_imageview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginBottom="8dp"
+                app:layout_constraintBottom_toTopOf="@+id/endtime_textview"
+                app:layout_constraintStart_toEndOf="@+id/classroom_textview"
+                app:srcCompat="@drawable/card_attended_green_icon" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -63,11 +63,6 @@ class SettingsActivity : AppCompatActivity(), View.OnClickListener,  AdapterView
     }
 
 
-
-    private fun groupSelection(){
-        // user selected a different group, save selection to database... that's it.
-    }
-
     private fun enableLocationPermission(){
         // user wants to enable the location permissions, guide them to the Android settings -page
         if(location_permission_switch.isChecked){
@@ -105,13 +100,16 @@ class SettingsActivity : AppCompatActivity(), View.OnClickListener,  AdapterView
         location_permission_switch.isChecked = switchSetup(location_permission_switch)
         dark_mode_switch.isChecked = switchSetup(dark_mode_switch)
 
-        // populate the spinner
+        // populate the spinner and select the correct group as a chosen group
         val adapterGroups = ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, DatabaseObj.user.groupList.toList())
         adapterGroups.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         group_select_spinner.adapter = adapterGroups
         val group = DatabaseObj.user.groupList.toList().indexOf(DatabaseObj.user.currentGroup)
         group_select_spinner.setSelection(group)
 
+
+        // deactivate location enabling switch and text if location is already permitted
+        if(location_permission_switch.isChecked)disableLocationPermissionSwitchAndText()
     }
 
     private fun switchSetup(view: View): Boolean{
@@ -146,6 +144,11 @@ class SettingsActivity : AppCompatActivity(), View.OnClickListener,  AdapterView
                     Toast.makeText(baseContext, error, Toast.LENGTH_SHORT).show()
                 }}
         }
+    }
+
+    private fun disableLocationPermissionSwitchAndText(){
+        location_perm_textview.isEnabled = false
+        location_permission_switch.isEnabled = false
     }
 }
 
