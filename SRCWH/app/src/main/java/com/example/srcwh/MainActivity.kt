@@ -205,7 +205,7 @@ class MainActivity : AppCompatActivity() {
     private fun generateView() {
         recyclerview_main.layoutManager = LinearLayoutManager(this)
         recyclerview_main.addOnScrollListener(scrollListener)
-        recyclerview_main.adapter = MainAdapter(DatabaseObj.getSchedule())
+        recyclerview_main.adapter = MainAdapter(this, DatabaseObj.getSchedule())
     }
 
     // in processIncomingIntent we check the message initiated by the nfc -reading
