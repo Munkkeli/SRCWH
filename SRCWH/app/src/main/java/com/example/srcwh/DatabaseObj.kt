@@ -69,6 +69,7 @@ object DatabaseObj {
             val scheduleList: MutableList<ClientSchedule> = mutableListOf()
             for(element in temp){
                 scheduleList.add(parseToClientSchedule(element))
+                scheduleList.add(parseToClientSchedule(element))
             }
             return scheduleList
         }

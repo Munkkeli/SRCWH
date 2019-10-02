@@ -32,11 +32,12 @@ class MainAdapter(val schedule: List<ClientSchedule>?): RecyclerView.Adapter<Cus
         holder.view.endtime_textview.text =  dateTimeFormatter(endTime)
         holder.view.classroom_textview.text = schedule?.get(position)?.locationList?.get(0)
         holder.view.address_textview.text = "address wip"
-        if(schedule?.get(position)?.attended != null) holder.view.checkmark_imageview.setImageResource(R.drawable.card_green_checkmark)
-        else holder.view.checkmark_imageview.setImageResource(R.drawable.ic_radiobox_blank)
+        val top_right_icon = cardTopRightIcon(endTime, position)
+        holder.view.checkmark_imageview.setImageResource(top_right_icon)
         val lectureStateImage = determineLessonState(endTime, startTime, position)
         if(lectureStateImage != null)holder.view.lesson_state_imageview.setImageResource(lectureStateImage)
         if(lectureStateImage == R.drawable.card_ongoing_blue_icon) animateOngoing(holder.view.context, holder.view.lesson_state_imageview)
+
 
     }
 
@@ -49,6 +50,14 @@ class MainAdapter(val schedule: List<ClientSchedule>?): RecyclerView.Adapter<Cus
     private fun animateOngoing(context: Context, view: View){
         val anim = AnimationUtils.loadAnimation(context, R.anim.pulse)
         view.startAnimation(anim)
+    }
+
+    private fun cardTopRightIcon(endTime: LocalDateTime, position: Int): Int{
+        val time = LocalDateTime.now()
+        if(time.isAfter(endTime)){
+            if(schedule?.get(position)?.attended != null) return R.drawable.card_green_checkmark
+            else return R.drawable.card_missed_card_icon_cross
+        }else return R.drawable.ic_radiobox_blank
     }
 
     private fun determineLessonState(endTime: LocalDateTime, startTime: LocalDateTime, lecture: Int): Int?{

@@ -9,9 +9,12 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import com.google.android.material.snackbar.Snackbar
 import android.app.PendingIntent
 import android.util.Log
+import android.view.View
+import android.view.animation.AnimationUtils
 import com.example.srcwh.dialog.DialogAction
 import com.example.srcwh.dialog.DialogHandler
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.srcwh.dialog.DialogInitialState
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -201,6 +204,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun generateView() {
         recyclerview_main.layoutManager = LinearLayoutManager(this)
+        recyclerview_main.addOnScrollListener(scrollListener)
         recyclerview_main.adapter = MainAdapter(DatabaseObj.getSchedule())
     }
 
@@ -219,6 +223,27 @@ class MainActivity : AppCompatActivity() {
         } else {
             // for some reason the incomint intent.action is not the one we want
             return
+        }
+    }
+
+    private var scrollListener:RecyclerView.OnScrollListener = object : RecyclerView.OnScrollListener(){
+        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+            super.onScrolled(recyclerView, dx, dy)
+            val n = recyclerView.layoutManager?.childCount
+            Log.d("SCROLLED", "coordx : $dx coordy $dy and children: $n")
+            when(dy<0){
+                 true-> {
+                     // scrolling upwards, fade in text
+                     Log.d("SCROLL", "scrolling up?")
+                      // user is scrolling up, which makes the toolbar appear
+                     // now would be a good time to play an animation
+                 }
+                false ->{
+                    Log.d("SCROLL", "scrolling down?")
+                    // user is scrolling down, play animation is necessary
+                }
+            }
+
         }
     }
 

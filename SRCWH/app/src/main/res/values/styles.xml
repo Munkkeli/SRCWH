@@ -1,13 +1,32 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight">
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimary</item>
         <item name="colorAccent">@color/colorAccent</item>
-
+        <item name="android:windowBackground">@color/light_background</item>
     </style>
+
+    <!-- just a test for card coloring!! -->
+
+    <style name="CardViewStyle" parent="CardView">
+        <item name="cardCornerRadius">4dp</item>
+        <item name="cardElevation">8dp</item>
+        <item name="cardBackgroundColor">@color/colorIconBackground</item>
+        <item name="android:textColor">@color/font_color_black</item>
+        <item name="cardUseCompatPadding">true</item>
+    </style>
+
+    <style name="ActionBarStyle" parent="Theme.MaterialComponents.DayNight">
+        <item name="colorPrimary">@color/light_background</item>
+    </style>
+
+    <style name="CardFontStyle" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/font_color_black</item>
+    </style>
+
 
     <style name="LoginTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
         <!-- Same as AppTheme, only hides the action bar. -->
