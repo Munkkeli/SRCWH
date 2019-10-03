@@ -16,6 +16,13 @@ import com.google.android.gms.vision.Detector
 import com.google.android.gms.vision.barcode.Barcode
 import com.google.android.gms.vision.barcode.BarcodeDetector
 import kotlinx.android.synthetic.main.activity_qr.*
+import android.app.Activity
+import android.content.Intent
+import androidx.core.app.ComponentActivity.ExtraData
+import androidx.core.content.ContextCompat.getSystemService
+import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+
+
 
 class QRActivity : AppCompatActivity() {
     private val CAMERA_PERMISSION_REQUEST_CODE = 2
@@ -25,6 +32,8 @@ class QRActivity : AppCompatActivity() {
 
     private lateinit var barcodeDetector: BarcodeDetector
     private lateinit var cameraSource: CameraSource
+
+    private var isComplete = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,11 +48,23 @@ class QRActivity : AppCompatActivity() {
 
             override fun receiveDetections(detections: Detector.Detections<Barcode>) {
                 val barcodeList = detections.detectedItems
-                if (barcodeList.size() > 0) {
+                if (!isComplete && barcodeList.size() > 0) {
                     Log.d("QR", "Found ${barcodeList.size()} barcode(s)")
 
-                    textView.post {
-                        textView.text = barcodeList.valueAt(0).displayValue
+                    val qr = barcodeList.valueAt(0).rawValue
+
+                    Log.d("QR", qr)
+
+                    Log.d("QR", "Accepted ${QR_REGEX.toRegex().matches(qr)}")
+
+                    // Make sure the QR code is legit
+                    if (QR_REGEX.toRegex().matches(qr)) {
+                        isComplete = true
+
+                        val resultIntent = Intent()
+                        resultIntent.putExtra("qr", qr)
+                        setResult(Activity.RESULT_OK, resultIntent)
+                        finish()
                     }
                 }
             }
@@ -52,7 +73,7 @@ class QRActivity : AppCompatActivity() {
         cameraSource =
             CameraSource.Builder(this, barcodeDetector)
                 .setRequestedPreviewSize(1024, 768)
-                .setRequestedFps(32f)
+                .setRequestedFps(24f)
                 .setAutoFocusEnabled(true)
                 .build()
 

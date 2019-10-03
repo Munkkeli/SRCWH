@@ -1,5 +1,6 @@
 package com.example.srcwh
 
+import android.app.Activity
 import android.content.Intent
 import android.nfc.NdefMessage
 import android.nfc.NfcAdapter
@@ -79,7 +80,7 @@ class MainActivity : AppCompatActivity() {
             // Navigate to scan
             val intent = Intent(this, QRActivity::class.java)
             // intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK and Intent.FLAG_ACTIVITY_NEW_TASK
-            startActivity(intent)
+            startActivityForResult(intent, QR_ACTIVITY_REQUEST_CODE)
             // finish()
         }
     }
@@ -173,6 +174,21 @@ class MainActivity : AppCompatActivity() {
     ) {
         // Check for location results
         locationHandler.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == QR_ACTIVITY_REQUEST_CODE) {
+            // Make sure the request was successful
+            if (resultCode == Activity.RESULT_OK) {
+                val qr = data?.extras?.get("qr")
+                Log.d("QR", "Returned to main activity with $qr")
+
+                val slabId = qr.toString().replace("$BASE_URL/qr/", "")
+                showAlertDialog(slabId)
+            }
+        }
     }
 
     override fun onResume() {
