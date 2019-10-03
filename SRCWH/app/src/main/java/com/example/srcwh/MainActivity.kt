@@ -73,6 +73,15 @@ class MainActivity : AppCompatActivity() {
                 processIncomingIntent(intent)
             }
         }
+
+        // QR scan FAB
+        scan_qr_code_button.setOnClickListener {
+            // Navigate to scan
+            val intent = Intent(this, QRActivity::class.java)
+            // intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK and Intent.FLAG_ACTIVITY_NEW_TASK
+            startActivity(intent)
+            // finish()
+        }
     }
 
     private fun showAlertDialog(
