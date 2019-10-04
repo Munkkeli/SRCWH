@@ -2,14 +2,12 @@ package com.example.srcwh
 
 import android.content.Context
 import android.util.Log
-import okhttp3.Response
 import org.jetbrains.anko.doAsync
-import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
 import java.time.format.DateTimeFormatter
-import java.util.*
-import java.util.concurrent.ConcurrentLinkedDeque
+import java.time.ZoneId.systemDefault
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
 
 object DatabaseObj {
     private var dataBase: UserDatabase? = null
@@ -65,7 +63,7 @@ object DatabaseObj {
         // get schedule from database
         // convert it into client schedule
         val temp = dataBase!!.scheduleDao().getSchedule()
-        if(temp.count() > 0){
+        if (temp.count() > 0){
             val scheduleList: MutableList<ClientSchedule> = mutableListOf()
             for(element in temp){
                 scheduleList.add(parseToClientSchedule(element))
@@ -96,11 +94,18 @@ object DatabaseObj {
         return User(user.metropoliaId!!, user.firstName, user.lastName, user.groupList.joinToString(","), user.currentGroup, user.hash!!, user.token!!)
     }
 
-    private fun parseToClientSchedule(schedule: Schedule): ClientSchedule{
+    private fun convertFromUTCToLocal(dateString: String): ZonedDateTime {
+        return LocalDateTime.parse(dateString, DateTimeFormatter.ISO_DATE_TIME)
+            .atOffset(ZoneOffset.UTC)
+            .atZoneSameInstant(systemDefault())
+    }
+
+    private fun parseToClientSchedule(schedule: Schedule): ClientSchedule {
         return ClientSchedule(
-            start = LocalDateTime.parse(schedule.start, DateTimeFormatter.ISO_DATE_TIME),
-            end = LocalDateTime.parse(schedule.end, DateTimeFormatter.ISO_DATE_TIME),
+            start = convertFromUTCToLocal(schedule.start),
+            end = convertFromUTCToLocal(schedule.end),
             locationList = schedule.locationList.split(",").toList(),
+            address = schedule.address,
             code = schedule.code,
             name = schedule.name,
             groupList = schedule.groupList.split(",").toList(),
@@ -115,6 +120,7 @@ object DatabaseObj {
             start = schedule.start,
             end = schedule.end,
             locationList = schedule.locationList.joinToString(","),
+            address = schedule.address,
             code = schedule.code,
             name = schedule.name,
             groupList = schedule.groupList.joinToString(","),

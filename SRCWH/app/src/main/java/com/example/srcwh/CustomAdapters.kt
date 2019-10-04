@@ -1,6 +1,7 @@
 package com.example.srcwh
 
 import android.content.Context
+import android.icu.text.DateFormat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,6 +10,8 @@ import androidx.core.content.ContextCompat.getColor
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.lesson_card.view.*
 import java.time.LocalDateTime
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 
 class MainAdapter(val context: Context, val schedule: List<ClientSchedule>?) : RecyclerView.Adapter<CustomViewHolder>() {
 
@@ -51,10 +54,8 @@ class MainAdapter(val context: Context, val schedule: List<ClientSchedule>?) : R
         )
     }
 
-    private fun dateTimeFormatter(date: LocalDateTime): String {
-        val hours = if (date.hour < 10) "0" + date.hour.toString() else date.hour.toString()
-        val minutes = if (date.minute < 10) "0" + date.minute.toString() else date.minute.toString()
-        return hours + ":" + minutes
+    private fun dateTimeFormatter(date: ZonedDateTime ): String {
+        return date.format(DateTimeFormatter.ofPattern("HH:mm"))
     }
 
     private fun animateOngoing(context: Context, view: View) {
@@ -62,8 +63,8 @@ class MainAdapter(val context: Context, val schedule: List<ClientSchedule>?) : R
         view.startAnimation(anim)
     }
 
-    private fun cardTopRightIcon(endTime: LocalDateTime, position: Int): Int {
-        val time = LocalDateTime.now()
+    private fun cardTopRightIcon(endTime: ZonedDateTime, position: Int): Int {
+        val time = ZonedDateTime.now()
         if (time.isAfter(endTime)) {
             if (schedule?.get(position)?.attended != null) return R.drawable.ic_checkbox_marked_circle
             else return R.drawable.ic_close_circle_outline
@@ -71,15 +72,15 @@ class MainAdapter(val context: Context, val schedule: List<ClientSchedule>?) : R
     }
 
     private fun determineLessonState(
-        endTime: LocalDateTime,
-        startTime: LocalDateTime,
+        endTime: ZonedDateTime,
+        startTime: ZonedDateTime,
         lecture: Int
     ): Int? {
         // this function get's called to check if the lesson is
         // a) attended
         // b) missed
         // c) ongoing
-        val time = LocalDateTime.now()
+        val time = ZonedDateTime.now()
         if (time.isAfter(endTime)) {
             // if the current time is after the lecture ending time
             // check if the user has attended and return

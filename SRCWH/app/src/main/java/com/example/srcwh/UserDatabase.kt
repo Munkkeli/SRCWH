@@ -2,10 +2,7 @@ package com.example.srcwh
 
 import android.content.Context
 import androidx.room.*
-import org.w3c.dom.Text
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.util.*
+import java.time.ZonedDateTime
 
 @Entity
 data class User(
@@ -31,15 +28,16 @@ data class ClientUser(
 
 @Entity
 data class Schedule(
+    @PrimaryKey
+    val id: String,
     val start: String,
     val end: String,
     val locationList: String,
+    val address: String,
     val code: String,
     val name: String,
     val groupList: String,
     val teacherList: String,
-    @PrimaryKey
-    val id: String,
     val attended: String?
 )
 
@@ -51,9 +49,10 @@ data class AppSettings(
 )
 
 data class ClientSchedule(
-    val start: LocalDateTime,
-    val end: LocalDateTime,
+    val start: ZonedDateTime,
+    val end: ZonedDateTime,
     val locationList: List<String>,
+    val address: String,
     val code: String,
     val name: String,
     val groupList: List<String>,

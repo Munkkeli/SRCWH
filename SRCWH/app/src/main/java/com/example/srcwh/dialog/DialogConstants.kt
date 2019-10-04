@@ -15,6 +15,7 @@ class DialogConstants(contect: Context) {
     val ICON_ERROR_LOCATION = R.drawable.ic_location_error
     val ICON_OVERRIDE = R.drawable.ic_override
     val ICON_ERROR = R.drawable.ic_emoticon_sad_outline
+    val ICON_CLOCK = R.drawable.ic_clock_outline
 
     val TITLE_LOADING = ""
     val TITLE_ATTENDED = "You're in"
@@ -27,5 +28,6 @@ class DialogConstants(contect: Context) {
     val TEXT_OVERRIDE = "You have already attended “LESSON” in another location, are you sure you want to switch to LOCATION"
     val TEXT_ERROR_PERMISSION_POSITION = "Please enable location to attend this lesson."
     val TEXT_ERROR_PERMISSION_POSITION_DISABLED = "You have disabled location. Please enable location to attend this lesson."
-    val TEXT_ERROR = "Something went wrong.\nPlease try again soon."
+    val TEXT_ERROR_LESSON = "You can only attend ongoing lessons, and your schedule seems to be empty at the moment."
+    val TEXT_ERROR = "Something went wrong.<br/>Please try again soon."
 }

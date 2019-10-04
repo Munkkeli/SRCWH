@@ -127,7 +127,7 @@ class MainActivity : AppCompatActivity() {
 
                     if (error != null) {
                         when (error) {
-                            AttendError.LESSON -> dialogHandler.setError()
+                            AttendError.LESSON -> dialogHandler.setErrorLesson()
                             AttendError.LOCATION -> dialogHandler.setConfirm(
                                 location,
                                 lesson

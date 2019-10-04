@@ -121,8 +121,18 @@ class DialogContainerFragment(
             .build()
     }
 
+    fun setErrorLesson() {
+        DialogBuilder(this).begin()
+            .setViewTemplate(DialogViewTemplate.ERROR)
+            .setIcon(DC.ICON_CLOCK)
+            .setTitle(DC.TITLE_ERROR)
+            .setText(DC.TEXT_ERROR_LESSON)
+            .setOnActionHandler(actionHandler)
+            .build()
+    }
+
     fun setErrorPosition(lesson: ScheduleResponse?) {
-        val address = "TODO"
+        val address = lesson?.address ?: "?"
 
         DialogBuilder(this).begin()
             .setViewTemplate(DialogViewTemplate.ERROR)

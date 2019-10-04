@@ -80,6 +80,10 @@ class DialogHandler {
         dialogContainerFragment!!.setConfirm(location, lesson)
     }
 
+    fun setErrorLesson() {
+        dialogContainerFragment!!.setErrorLesson()
+    }
+
     fun setErrorPosition(lesson: ScheduleResponse?) {
         dialogContainerFragment!!.setErrorPosition(lesson)
     }

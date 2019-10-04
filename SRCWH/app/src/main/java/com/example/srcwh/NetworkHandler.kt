@@ -53,6 +53,7 @@ data class ScheduleResponse(
     @SerializedName("start") val start: String,
     @SerializedName("end") val end: String,
     @SerializedName("locationList") val locationList: ArrayList<String>,
+    @SerializedName("address") val address: String,
     @SerializedName("code") val code: String,
     @SerializedName("name") val name: String,
     @SerializedName("groupList") val groupList: ArrayList<String>,
