@@ -15,20 +15,21 @@
     <application
         android:allowBackup="true"
         android:fullBackupContent="@xml/backup_rules"
+        android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:launchMode="singleTop"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:usesCleartextTraffic="true"
-        android:hardwareAccelerated="true">
+        android:usesCleartextTraffic="true">
 
         <!-- Only include libraries required for QR scanning from Android Vision API -->
         <meta-data
             android:name="com.google.android.gms.vision.DEPENDENCIES"
             android:value="barcode" />
 
+        <!-- Splash screen -->
         <activity
             android:name=".SplashActivity"
             android:theme="@style/SplashTheme">
@@ -36,42 +37,58 @@
             <!-- Set as main view when app is launched -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
             <!-- Set as main view when opened from a deep link -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data
-                    android:scheme="https"
-                    android:host="srcwh.xyz" />
+                    android:host="srcwh.xyz"
+                    android:scheme="https" />
                 <data
-                    android:scheme="app"
-                    android:host="srcwh" />
+                    android:host="srcwh"
+                    android:scheme="app" />
             </intent-filter>
 
             <!-- Set as main view when opened from NFC intent -->
             <intent-filter>
                 <action android:name="android.nfc.action.NDEF_DISCOVERED" />
+
                 <category android:name="android.intent.category.DEFAULT" />
+
                 <data
                     android:host="ext"
                     android:scheme="vnd.android.nfc" />
             </intent-filter>
         </activity>
 
+        <!-- Login screen -->
         <activity
             android:name=".LoginActivity"
             android:theme="@style/LoginTheme"
             android:windowSoftInputMode="adjustResize" />
 
+        <!-- Schedule screen -->
         <activity android:name=".MainActivity" />
 
+        <!-- Scan QR screen -->
         <activity android:name=".QRActivity" />
 
-        <activity android:name=".SettingsActivity" />
+        <!-- Settings screen -->
+        <activity
+            android:name=".SettingsActivity"
+            android:parentActivityName="com.example.srcwh.MainActivity">
+
+            <!-- Enable back button functionality -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.srcwh.MainActivity" />
+        </activity>
     </application>
 
 </manifest>

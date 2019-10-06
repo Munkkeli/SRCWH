@@ -1,15 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="colorWhite">#FFFFFF</color>
     <color name="colorPrimary">#FF6659</color>
     <color name="colorAccent">#D32F2F</color>
     <color name="colorSuccess">#48AC58</color>
-    <color name="colorIcon">#929292</color>
-    <color name="colorDark">#4B4B4B</color>
-    <color name="colorIconBackground">#FFFFFF</color>
+    <color name="colorBlack">#342D2C</color>
+    <color name="colorDark">#585353</color>
+    <color name="colorGrey">#A7A3A3</color>
+    <color name="colorCancel">#8E8E8E</color>
+    <color name="colorSink">#F7F7F7</color>
+    <color name="colorBorder">#E5E5E5</color>
+    <color name="colorTaskBar">@color/colorPrimary</color>
+    <color name="colorTaskBarIcon">#AAFFFFFF</color>
+    <color name="colorBackground">@color/colorWhite</color>
+
     <color name="common_border_color">#313131</color>
-    <color name="night_background">#1A0606</color>
     <color name="light_background">#FAFAFA</color>
-    <color name="card_background_night">#4D0B0B</color>
     <color name="font_color_black">#1B1B1B</color>
     <color name="font_color_title_black">#000000</color>
     <color name="font_color_white">#FFFFFF</color>

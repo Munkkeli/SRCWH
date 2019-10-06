@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#FF6659</color>
+    <color name="colorAccent">#D32F2F</color>
+    <color name="colorSuccess">#48AC58</color>
+    <color name="colorDark">#FAFAFA</color>
+    <color name="colorSink">#342D2C</color>
+    <color name="colorBorder">#342D2C</color>
+    <color name="colorTaskBar">@color/colorSink</color>
+    <color name="colorBackground">#1E1818</color>
+</resources>

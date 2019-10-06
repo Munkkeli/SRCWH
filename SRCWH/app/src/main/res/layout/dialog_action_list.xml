@@ -44,8 +44,8 @@
         android:text="Button"
         android:layout_marginBottom="8dp"
         android:accessibilityTraversalAfter="@id/dialog_button_secondary"
-        android:textColor="@color/colorDark"
-        app:iconTint="@color/colorDark"
+        android:textColor="@color/colorGrey"
+        app:iconTint="@color/colorGrey"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

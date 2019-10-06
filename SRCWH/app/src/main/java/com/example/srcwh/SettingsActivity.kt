@@ -1,21 +1,22 @@
 package com.example.srcwh
 
-import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.provider.ContactsContract
 import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_settings.*
 import org.jetbrains.anko.configuration
+import androidx.core.app.NavUtils
+import android.view.MenuItem
+
 
 // purpose of this activity is to handle all the actions and logic of the settings page
 
@@ -29,6 +30,12 @@ class SettingsActivity : AppCompatActivity(), View.OnClickListener,  AdapterView
         setContentView(R.layout.activity_settings)
 
         networkHandler = NetworkHandler()
+
+        // Setup toolbar
+        val toolbar = findViewById<Toolbar>(R.id.settings_toolbar)
+        toolbar.title = "Settings"
+        setSupportActionBar(toolbar)
+        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
 
         dark_mode_switch.setOnClickListener(this)
         location_permission_switch.setOnClickListener(this)
@@ -62,6 +69,16 @@ class SettingsActivity : AppCompatActivity(), View.OnClickListener,  AdapterView
         println("KIKKEL nothing interesting happens")
     }
 
+    // Enable back button functionality
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                NavUtils.navigateUpFromSameTask(this)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
 
     private fun enableLocationPermission(){
         // user wants to enable the location permissions, guide them to the Android settings -page

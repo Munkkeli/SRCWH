@@ -34,7 +34,7 @@
         android:layout_height="128dp"
         android:contentDescription="Loading"
         android:indeterminateTintMode="src_atop"
-        android:indeterminateTint="@color/colorIcon"
+        android:indeterminateTint="@color/colorDark"
         android:layout_gravity="center" />
 
     <TextView

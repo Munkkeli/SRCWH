@@ -1,19 +1,28 @@
 package com.example.srcwh
 
 import android.content.Context
-import android.icu.text.DateFormat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import androidx.core.content.ContextCompat.getColor
+import androidx.core.text.HtmlCompat
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.lesson_card.view.*
-import java.time.LocalDateTime
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import androidx.core.content.ContextCompat.startActivity
+import android.content.Intent
+import android.net.Uri
 
-class MainAdapter(val context: Context, val schedule: List<ClientSchedule>?) : RecyclerView.Adapter<CustomViewHolder>() {
+enum class LessonState {
+    ONGOING,
+    ATTENDED,
+    MISSED
+}
+
+class MainAdapter(val context: Context, val schedule: List<ClientSchedule>?) :
+    RecyclerView.Adapter<CustomViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CustomViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
@@ -26,35 +35,72 @@ class MainAdapter(val context: Context, val schedule: List<ClientSchedule>?) : R
     }
 
     override fun onBindViewHolder(holder: CustomViewHolder, position: Int) {
-        val startTime = schedule?.get(position)?.start!!
-        val endTime = schedule?.get(position)?.end
+        val lesson = schedule?.get(position)!!
+        val lessonState = determineLessonState(lesson)
+        val subtitle = HtmlCompat.fromHtml(
+            "${lesson.code} — <b>${dateTimeFormatter(lesson.start)}</b> – ${dateTimeFormatter(lesson.end)}",
+            HtmlCompat.FROM_HTML_MODE_LEGACY
+        )
 
-        holder.view.starttime_textview.text = dateTimeFormatter(startTime)
-        holder.view.endtime_textview.text = dateTimeFormatter(endTime)
-        holder.view.classroom_textview.text = schedule?.get(position)?.locationList?.get(0)
-        holder.view.address_textview.text = "address wip"
+        holder.view.card_title.text = lesson.name
+        holder.view.card_subtitle.text = subtitle
 
-        val top_right_icon = cardTopRightIcon(endTime, position)
-        holder.view.checkmark_imageview.setImageResource(top_right_icon)
+        holder.view.card_location.text = HtmlCompat.fromHtml(
+            lesson.locationList.joinToString("<br />"),
+            HtmlCompat.FROM_HTML_MODE_LEGACY
+        )
 
-        if (top_right_icon == R.drawable.ic_checkbox_marked_circle) {
-            val color = getColor(context!!, R.color.colorSuccess)
-            holder.view.checkmark_imageview.setColorFilter(color)
-            // holder.view.card_view.alpha = 0.75f
-            // holder.view.card_view.elevation = 0f
+        val icon = when(lessonState) {
+            LessonState.ATTENDED -> R.drawable.ic_checkbox_marked_circle_outline
+            LessonState.MISSED -> R.drawable.ic_close_circle_outline
+            else -> R.drawable.ic_radiobox_blank
+        }
+        holder.view.card_icon.setImageResource(icon)
+
+        if (icon == R.drawable.ic_checkbox_marked_circle_outline) {
+            val color = getColor(context, R.color.colorSuccess)
+            holder.view.card_icon_background.setColorFilter(color)
+        } else {
+            val color = getColor(context, R.color.colorAccent)
+            holder.view.card_icon_background.setColorFilter(color)
+            holder.view.card_icon_background.alpha = 0.75f
         }
 
-        val lectureStateImage = determineLessonState(endTime, startTime, position)
-        if (lectureStateImage != null) holder.view.lesson_state_imageview.setImageResource(
-            lectureStateImage
-        )
-        if (lectureStateImage == R.drawable.card_ongoing_blue_icon) animateOngoing(
-            holder.view.context,
-            holder.view.lesson_state_imageview
-        )
+        when (lessonState) {
+            LessonState.ONGOING -> {
+                val color = getColor(context, R.color.colorSuccess)
+                holder.view.card_state.background.setTint(color)
+                holder.view.card_state.background.alpha = 128
+                holder.view.card_state.text = context.getString(R.string.lesson_state_ongoing)
+                animateOngoing(context, holder.view.card_state)
+            }
+            LessonState.ATTENDED -> {
+                val color = getColor(context, R.color.colorSuccess)
+                holder.view.card_state.background.setTint(color)
+                holder.view.card_state.text = context.getString(R.string.lesson_state_attended)
+            }
+            LessonState.MISSED -> {
+                val color = getColor(context, R.color.colorAccent)
+                holder.view.card_state.background.setTint(color)
+                holder.view.card_state.background.alpha = 128
+                holder.view.card_state.text = context.getString(R.string.lesson_state_missed)
+            }
+        }
+
+        if (ZonedDateTime.now().isAfter(lesson.end)) {
+            // holder.view.alpha = 0.75f
+        }
+
+        // Open Google Maps and search for address
+        holder.view.card_button_map.setOnClickListener {
+            val uri = Uri.parse("geo:0,0?q=${lesson.address.splitToSequence(" ").joinToString("+")}")
+            val intent = Intent(Intent.ACTION_VIEW, uri)
+            intent.setPackage("com.google.android.apps.maps")
+            startActivity(context, intent, null)
+        }
     }
 
-    private fun dateTimeFormatter(date: ZonedDateTime ): String {
+    private fun dateTimeFormatter(date: ZonedDateTime): String {
         return date.format(DateTimeFormatter.ofPattern("HH:mm"))
     }
 
@@ -63,36 +109,14 @@ class MainAdapter(val context: Context, val schedule: List<ClientSchedule>?) : R
         view.startAnimation(anim)
     }
 
-    private fun cardTopRightIcon(endTime: ZonedDateTime, position: Int): Int {
-        val time = ZonedDateTime.now()
-        if (time.isAfter(endTime)) {
-            if (schedule?.get(position)?.attended != null) return R.drawable.ic_checkbox_marked_circle
-            else return R.drawable.ic_close_circle_outline
-        } else return R.drawable.ic_radiobox_blank
-    }
-
     private fun determineLessonState(
-        endTime: ZonedDateTime,
-        startTime: ZonedDateTime,
-        lecture: Int
-    ): Int? {
-        // this function get's called to check if the lesson is
-        // a) attended
-        // b) missed
-        // c) ongoing
+        lesson: ClientSchedule
+    ): LessonState {
         val time = ZonedDateTime.now()
-        if (time.isAfter(endTime)) {
-            // if the current time is after the lecture ending time
-            // check if the user has attended and return
-            if (schedule?.get(lecture)?.attended != null) return R.drawable.card_attended_green_icon else return R.drawable.card_missed_yellow_icon
-        } else {
-            // the current time is before the lecture ending time, meaning
-            // the lecture is either ongoing or in the future
-            if (time.isAfter(startTime)) {
-                return R.drawable.card_ongoing_blue_icon
-            }
-            // if none of the conditions are met
-            return null
+        return when {
+            time.isAfter(lesson.start) && time.isBefore(lesson.end) -> LessonState.ONGOING
+            time.isAfter(lesson.end) && lesson.attended != null -> LessonState.ATTENDED
+            else -> LessonState.MISSED
         }
     }
 

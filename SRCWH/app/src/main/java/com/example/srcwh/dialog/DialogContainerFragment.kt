@@ -138,7 +138,7 @@ class DialogContainerFragment(
             .setViewTemplate(DialogViewTemplate.ERROR)
             .setIcon(DC.ICON_LOCATION)
             .setTitle(DC.TITLE_ERROR)
-            .setText(DC.TEXT_ERROR_POSITION.replace("ADDRESS", address))
+            .setText(DC.TEXT_ERROR_POSITION.replace("ADDRESS", "<b>$address</b>"))
             .setOnActionHandler(actionHandler)
             .build()
     }

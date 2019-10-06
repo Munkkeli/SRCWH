@@ -6,27 +6,23 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimary</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:windowBackground">@color/light_background</item>
+        <item name="android:windowBackground">@color/colorBackground</item>
+        <item name="actionOverflowButtonStyle">@style/ToolbarButton</item>
     </style>
 
-    <!-- just a test for card coloring!! -->
-
-    <style name="CardViewStyle" parent="CardView">
-        <item name="cardCornerRadius">4dp</item>
-        <item name="cardElevation">8dp</item>
-        <item name="cardBackgroundColor">@color/colorIconBackground</item>
-        <item name="android:textColor">@color/font_color_black</item>
-        <item name="cardUseCompatPadding">true</item>
+    <style name="ToolBarStyle" parent="Theme.AppCompat">
+        <item name="android:textColorPrimary">@color/colorWhite</item>
+        <item name="android:textColorSecondary">@color/colorTaskBarIcon</item>
+        <item name="actionMenuTextColor">@color/colorWhite</item>
     </style>
 
     <style name="ActionBarStyle" parent="Theme.MaterialComponents.DayNight">
-        <item name="colorPrimary">@color/light_background</item>
+        <item name="colorPrimary">@color/colorBackground</item>
     </style>
 
     <style name="CardFontStyle" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/font_color_black</item>
     </style>
-
 
     <style name="LoginTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
         <!-- Same as AppTheme, only hides the action bar. -->
@@ -52,4 +48,44 @@
         <item name="android:background">?android:attr/listDivider</item>
     </style>
 
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="Toolbar" parent="Theme.AppCompat.Light">
+        <item name="colorControlNormal">@color/colorWhite</item>
+        <item name="android:textColorPrimary">@color/colorWhite</item>
+        <item name="android:actionOverflowButtonStyle">@color/colorWhite</item>
+        <item name="android:textColorSecondary">@color/colorWhite</item>
+    </style>
+
+    <style name="ToolbarButton" parent="Widget.AppCompat.ActionButton.Overflow">
+        <item name="android:tint">@color/colorWhite</item>
+    </style>
+
+    <style name="ToolbarTitle" parent="AppTheme">
+        <item name="android:textColor">@color/colorWhite</item>
+        <item name="android:textSize">28sp</item>
+    </style>
+
+    <style name="ToolbarSubtitle" parent="AppTheme">
+        <item name="android:textColor">@color/colorWhite</item>
+        <item name="android:alpha">0.65</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="IconOnlyButton" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:minWidth">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetLeft">0dp</item>
+        <item name="android:insetRight">0dp</item>
+        <item name="iconPadding">0dp</item>
+        <item name="iconGravity">textStart</item>
+    </style>
 </resources>
