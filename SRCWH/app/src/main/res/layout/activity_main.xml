@@ -105,6 +105,7 @@
         android:layout_margin="16dp"
         android:clickable="true"
         app:borderWidth="0dp"
+        android:contentDescription="Scan QR code"
         android:backgroundTint="@color/colorAccent"
         app:srcCompat="@drawable/ic_qrcode"
         app:tint="@color/colorWhite" />

@@ -153,6 +153,7 @@
                     android:layout_marginTop="20dp"
                     app:icon="@drawable/ic_map_search"
                     app:iconTint="@color/colorGrey"
+                    android:contentDescription="Search in Google Maps"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 

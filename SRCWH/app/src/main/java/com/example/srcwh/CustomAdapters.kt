@@ -14,11 +14,13 @@ import java.time.format.DateTimeFormatter
 import androidx.core.content.ContextCompat.startActivity
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 
 enum class LessonState {
     ONGOING,
     ATTENDED,
-    MISSED
+    MISSED,
+    UPCOMING,
 }
 
 class MainAdapter(val context: Context, val schedule: List<ClientSchedule>?) :
@@ -57,22 +59,31 @@ class MainAdapter(val context: Context, val schedule: List<ClientSchedule>?) :
         }
         holder.view.card_icon.setImageResource(icon)
 
-        if (icon == R.drawable.ic_checkbox_marked_circle_outline) {
-            val color = getColor(context, R.color.colorSuccess)
-            holder.view.card_icon_background.setColorFilter(color)
-        } else {
-            val color = getColor(context, R.color.colorAccent)
-            holder.view.card_icon_background.setColorFilter(color)
-            holder.view.card_icon_background.alpha = 0.75f
+        when(lessonState) {
+            LessonState.ATTENDED -> {
+                val color = getColor(context, R.color.colorSuccess)
+                holder.view.card_icon_background.setColorFilter(color)
+            }
+            LessonState.ONGOING -> {
+                val color = getColor(context, R.color.colorSuccess)
+                holder.view.card_icon_background.setColorFilter(color)
+                holder.view.card_icon_background.alpha = 0.75f
+                animateIcon(context, holder.view.card_icon_background)
+            }
+            else -> {
+                val color = getColor(context, R.color.colorAccent)
+                holder.view.card_icon_background.setColorFilter(color)
+                holder.view.card_icon_background.alpha = 0.75f
+            }
         }
 
         when (lessonState) {
             LessonState.ONGOING -> {
                 val color = getColor(context, R.color.colorSuccess)
                 holder.view.card_state.background.setTint(color)
-                holder.view.card_state.background.alpha = 128
+                holder.view.card_state.background.alpha = 192
                 holder.view.card_state.text = context.getString(R.string.lesson_state_ongoing)
-                animateOngoing(context, holder.view.card_state)
+                animateState(context, holder.view.card_state)
             }
             LessonState.ATTENDED -> {
                 val color = getColor(context, R.color.colorSuccess)
@@ -82,13 +93,16 @@ class MainAdapter(val context: Context, val schedule: List<ClientSchedule>?) :
             LessonState.MISSED -> {
                 val color = getColor(context, R.color.colorAccent)
                 holder.view.card_state.background.setTint(color)
-                holder.view.card_state.background.alpha = 128
+                holder.view.card_state.background.alpha = 192
                 holder.view.card_state.text = context.getString(R.string.lesson_state_missed)
+            }
+            LessonState.UPCOMING -> {
+                holder.view.card_state.visibility = View.GONE
             }
         }
 
-        if (ZonedDateTime.now().isAfter(lesson.end)) {
-            // holder.view.alpha = 0.75f
+        if (Controller.time.isAfter(lesson.end)) {
+            holder.view.alpha = 0.75f
         }
 
         // Open Google Maps and search for address
@@ -104,7 +118,12 @@ class MainAdapter(val context: Context, val schedule: List<ClientSchedule>?) :
         return date.format(DateTimeFormatter.ofPattern("HH:mm"))
     }
 
-    private fun animateOngoing(context: Context, view: View) {
+    private fun animateIcon(context: Context, view: View) {
+        val anim = AnimationUtils.loadAnimation(context, R.anim.pulse_alpha)
+        view.startAnimation(anim)
+    }
+
+    private fun animateState(context: Context, view: View) {
         val anim = AnimationUtils.loadAnimation(context, R.anim.pulse)
         view.startAnimation(anim)
     }
@@ -112,11 +131,12 @@ class MainAdapter(val context: Context, val schedule: List<ClientSchedule>?) :
     private fun determineLessonState(
         lesson: ClientSchedule
     ): LessonState {
-        val time = ZonedDateTime.now()
+        val time = Controller.time
         return when {
-            time.isAfter(lesson.start) && time.isBefore(lesson.end) -> LessonState.ONGOING
-            time.isAfter(lesson.end) && lesson.attended != null -> LessonState.ATTENDED
-            else -> LessonState.MISSED
+            lesson.attended != null -> LessonState.ATTENDED
+            lesson.start.isBefore(time) && lesson.end.isAfter(time) -> LessonState.ONGOING
+            lesson.end.isBefore(time) -> LessonState.MISSED
+            else -> LessonState.UPCOMING
         }
     }
 
