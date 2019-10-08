@@ -17,8 +17,8 @@ const val QR_REGEX = "$BASE_URL/qr/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89a
 const val GENERIC_ERROR = "Something went wrong. Please try again later."
 const val LOGIN_ERROR = "Invalid credentials. Please try again."
 
-const val SHARED_PREFERENCES = "sharedPrefs"
-const val DARK_MODE_ON = "false"
+const val NOTIF_CHANNEL_ID = "srcwh_notif_id"
+const val NOTIF_CHANNEL_NAME = "srcwh"
 
 const val GROUP_ERROR = "You must choose a group."
 
