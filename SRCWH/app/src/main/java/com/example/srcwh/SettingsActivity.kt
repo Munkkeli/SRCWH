@@ -96,11 +96,11 @@ class SettingsActivity : AppCompatActivity(), View.OnClickListener,  AdapterView
 
     private fun darkModeSwitch(){
         // the switch was interacted with, check if on/off and act accordingly
-        val settings = DatabaseObj.settings
-        if(dark_mode_switch.isChecked){
+        val settings = DatabaseObj.getSettingsData()
+        if (dark_mode_switch.isChecked){
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
             settings.darkMode = 1
-        }else{
+        } else {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
             settings.darkMode = 0
         }
@@ -110,7 +110,7 @@ class SettingsActivity : AppCompatActivity(), View.OnClickListener,  AdapterView
     }
 
     private fun notificationsSwitch(){
-        val settings = DatabaseObj.settings
+        val settings = DatabaseObj.getSettingsData()
         settings.allowNotifications = notifications_enabled_switch.isChecked
         DatabaseObj.updateSettingsData(settings)
     }

@@ -14,12 +14,12 @@ class SplashActivity : AppCompatActivity() {
         val user = getUserData()
         val settings = getCurrentSettings()
 
-        if(settings == null){
+        if (settings == null) {
             // no settings implemented yet, insert basic settings
             Log.d("SPLASH", "settings null")
             DatabaseObj.initDefaultSettings()
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-        }else{
+        } else {
             // settings were found, change the app theme
             Log.d("SPLASH", "settings found! darkmode is: ${settings.darkMode}")
             when(settings.darkMode){

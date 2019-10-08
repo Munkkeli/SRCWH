@@ -1,7 +1,6 @@
 package com.example.srcwh
 
 import android.content.Context
-import android.util.Log
 import org.jetbrains.anko.doAsync
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -13,7 +12,6 @@ object DatabaseObj {
     private var dataBase: UserDatabase? = null
     // user is the userdata clientside, stored in a variable that can be reached easily app-wide
     lateinit var user: ClientUser
-    lateinit var settings: AppSettings
 
     val isConnected
         get() = dataBase != null
@@ -22,9 +20,10 @@ object DatabaseObj {
         dataBase = UserDatabase.get(context)
     }
 
-    fun initDefaultSettings(){
-        settings = AppSettings(0, 0, true)
+    fun initDefaultSettings(): AppSettings {
+        val settings = AppSettings(0, 0, true)
         dataBase!!.settingsDao().insert(settings)
+        return settings
     }
 
     fun addUserToDatabase(_user: User){
@@ -42,8 +41,11 @@ object DatabaseObj {
         return user
     }
 
-    fun getSettingsData(): AppSettings?{
-        settings = dataBase!!.settingsDao().getSettings()
+    fun getSettingsData(): AppSettings {
+        var settings = dataBase?.settingsDao()?.getSettings()
+        if (settings == null) {
+            settings = initDefaultSettings()
+        }
         return settings
     }
 
