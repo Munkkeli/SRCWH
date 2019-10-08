@@ -65,6 +65,10 @@ object DatabaseObj {
         return dataBase!!.notificationDao().notificationAlreadySent(id)
     }
 
+    fun insertNotification(notification: Notification){
+        dataBase!!.notificationDao().insert(notification)
+    }
+
     fun getSchedule(): List<ClientSchedule>?{
         // get schedule from database
         // convert it into client schedule

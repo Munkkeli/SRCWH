@@ -104,5 +104,7 @@ class BackgroundWorker(context: Context, workerParameters: WorkerParameters): Wo
         with(NotificationManagerCompat.from(applicationContext)){
             notify(testID, builder.build())
         }
+
+        DatabaseObj.insertNotification(Notification(lesson.id, true))
     }
 }
