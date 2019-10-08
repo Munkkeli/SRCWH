@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <TextView
+        android:id="@+id/dialog_location"
+        android:layout_width="match_parent"
+        android:layout_height="128dp"
+        android:layout_marginTop="48dp"
+        android:text="C312"
+        android:importantForAccessibility="no"
+        android:textAlignment="center"
+        android:gravity="center"
+        android:textSize="60sp"
+        android:textStyle="bold"
+        android:textColor="@color/colorPrimary"/>
+
+    <ImageView
+        android:layout_marginTop="48dp"
+        android:id="@+id/dialog_success_icon"
+        android:layout_width="match_parent"
+        android:layout_height="128dp"
+        android:importantForAccessibility="no"
+        android:tint="@color/colorPrimary"
+        app:srcCompat="@drawable/ic_checkbox_marked_circle_outline" />
+
+    <ProgressBar
+        android:layout_marginTop="48dp"
+        android:id="@+id/dialog_loading"
+        android:layout_width="match_parent"
+        android:layout_height="128dp"
+        android:contentDescription="Loading"
+        android:indeterminateTintMode="src_atop"
+        android:indeterminateTint="@color/colorDark"
+        android:layout_gravity="center" />
+
+    <TextView
+        android:id="@+id/dialog_success_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="You're in"
+        android:importantForAccessibility="no"
+        android:textAlignment="center"
+        android:textColor="@color/colorDark"
+        android:textSize="32sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:paddingLeft="32dp"
+        android:paddingRight="32dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="24dp"
+        android:id="@+id/dialog_success_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/dialog_text_attended"
+        android:textAlignment="center" />
+
+</LinearLayout>

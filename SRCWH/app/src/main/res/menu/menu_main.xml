@@ -7,7 +7,7 @@
         android:id="@+id/action_settings"
         android:orderInCategory="300"
         android:title="Settings"
-        android:icon="@drawable/ic_dots_horizontal"
+        android:icon="@drawable/ic_settings_outline"
         android:iconTint="@color/colorWhite"
         app:showAsAction="always" />
 

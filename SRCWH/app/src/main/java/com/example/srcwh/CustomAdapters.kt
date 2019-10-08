@@ -8,13 +8,12 @@ import android.view.animation.AnimationUtils
 import androidx.core.content.ContextCompat.getColor
 import androidx.core.text.HtmlCompat
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.android.synthetic.main.lesson_card.view.*
+import kotlinx.android.synthetic.main.item_lesson.view.*
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import androidx.core.content.ContextCompat.startActivity
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 
 enum class LessonState {
     ONGOING,
@@ -28,7 +27,7 @@ class MainAdapter(val context: Context, val schedule: List<ClientSchedule>?) :
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CustomViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
-        val row = layoutInflater.inflate(R.layout.lesson_card, parent, false)
+        val row = layoutInflater.inflate(R.layout.item_lesson, parent, false)
         return CustomViewHolder(row)
     }
 

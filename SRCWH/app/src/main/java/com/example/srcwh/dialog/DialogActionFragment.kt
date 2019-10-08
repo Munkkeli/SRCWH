@@ -13,7 +13,7 @@ class DialogActionFragment(val primary: String?, val secondary: String?, val can
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.dialog_action_list, container, false)
+        val view = inflater.inflate(R.layout.fragment_dialog_actions, container, false)
 
         val primary = view.findViewById<Button>(R.id.dialog_button_primary)
         val secondary = view.findViewById<Button>(R.id.dialog_button_secondary)

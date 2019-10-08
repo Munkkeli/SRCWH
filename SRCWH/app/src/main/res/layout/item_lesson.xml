@@ -54,7 +54,7 @@
                 android:layout_marginStart="16dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/circle" />
+                app:srcCompat="@drawable/dialog_icon_background" />
 
             <ImageView
                 android:id="@+id/card_icon"
@@ -78,7 +78,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="7dp"
                 android:layout_marginStart="16dp"
-                android:background="@drawable/label"
+                android:background="@drawable/item_lesson_label_background"
                 android:backgroundTint="@color/colorPrimary"
                 android:textColor="@color/colorWhite"
                 android:textSize="12sp"
@@ -113,7 +113,7 @@
                 android:layout_marginBottom="16dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginStart="16dp"
-                android:background="@drawable/card_sink"
+                android:background="@drawable/item_lesson_sink"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/card_icon_background"

@@ -33,14 +33,14 @@ class DialogContainerFragment(
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = layoutInflater.inflate(R.layout.dialog_success, null)
+        val view = layoutInflater.inflate(R.layout.fragment_dialog, null)
 
         DC = DialogConstants(context!!)
 
         // Visual improvements
         if (dialog != null && dialog!!.window != null) {
-            dialog!!.window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            dialog!!.window.requestFeature(Window.FEATURE_NO_TITLE)
+            dialog!!.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            dialog!!.window!!.requestFeature(Window.FEATURE_NO_TITLE)
         }
 
         this.containerView = view

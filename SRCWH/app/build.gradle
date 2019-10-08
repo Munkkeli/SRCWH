@@ -11,7 +11,7 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "com.example.srcwh"
-        minSdkVersion 26
+        minSdkVersion 27
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"

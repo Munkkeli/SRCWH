@@ -1,42 +1,21 @@
 <resources>
-    <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimary</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:windowBackground">@color/colorBackground</item>
+        <item name="actionOverflowButtonStyle">@style/ToolbarButton</item>
+
         <item name="android:statusBarColor">@color/colorTaskBar</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+        <item name="android:navigationBarColor">@color/colorBackground</item>
     </style>
 
-    <!-- just a test for card coloring!! -->
-
-    <style name="ActionBarStyle" parent="Theme.MaterialComponents.DayNight">
-        <item name="colorPrimary">@color/colorBackground</item>
+    <style name="LoginTheme" parent="AppTheme">
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:statusBarColor">@color/colorBackground</item>
+        <item name="android:windowLightNavigationBar">false</item>
+        <item name="android:navigationBarColor">@color/colorBackground</item>
     </style>
-
-    <style name="LoginTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
-        <!-- Same as AppTheme, only hides the action bar. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimary</item>
-        <item name="colorAccent">@color/colorAccent</item>
-
-
-        <item name="android:statusBarColor">?android:colorBackground</item>
-        <item name="android:windowLightStatusBar">true</item>
-    </style>
-
-    <style name="SplashTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
-        <item name="android:windowBackground">@drawable/splash_background</item>
-        <item name="colorPrimaryDark">@android:color/background_dark</item>
-        <item name="android:statusBarColor">@color/colorAccent</item>
-    </style>
-
-    <!-- divider for setting list options -->
-    <style name="Divider">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">2dp</item>
-        <item name="android:background">?android:attr/listDivider</item>
-    </style>
-
 </resources>

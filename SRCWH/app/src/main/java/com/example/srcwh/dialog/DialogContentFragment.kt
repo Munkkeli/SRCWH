@@ -1,7 +1,6 @@
 package com.example.srcwh.dialog
 
 import android.os.Bundle
-import android.text.Html
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -26,7 +25,7 @@ class DialogContentFragment(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_dialog, container, false)
+        val view = inflater.inflate(R.layout.fragment_dialog_content, container, false)
 
         val location = view.findViewById<TextView>(R.id.dialog_location)
         val icon = view.findViewById<ImageView>(R.id.dialog_success_icon)
@@ -48,7 +47,7 @@ class DialogContentFragment(
                 loader.visibility = View.VISIBLE
             }
             this.icon != null -> {
-                icon.setImageResource(this.icon!!)
+                icon.setImageResource(this.icon)
             }
         }
 

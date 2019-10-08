@@ -32,12 +32,13 @@
         <!-- Splash screen -->
         <activity
             android:name=".SplashActivity"
-            android:theme="@style/SplashTheme">
+            android:theme="@style/SplashTheme"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait">
 
             <!-- Set as main view when app is launched -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
@@ -45,14 +46,23 @@
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="srcwh"
+                    android:scheme="app" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data
                     android:host="srcwh.xyz"
-                    android:scheme="https" />
-                <data
-                    android:host="srcwh"
-                    android:scheme="app" />
+                    android:scheme="https"
+                    android:pathPrefix="/qr" />
             </intent-filter>
 
             <!-- Set as main view when opened from NFC intent -->
@@ -71,18 +81,29 @@
         <activity
             android:name=".LoginActivity"
             android:theme="@style/LoginTheme"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="adjustResize"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait" />
 
         <!-- Schedule screen -->
-        <activity android:name=".MainActivity" />
+        <activity
+            android:name=".MainActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait" />
 
         <!-- Scan QR screen -->
-        <activity android:name=".QRActivity" />
+        <activity
+            android:name=".QRActivity"
+            android:theme="@style/QRTheme"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait" />
 
         <!-- Settings screen -->
         <activity
             android:name=".SettingsActivity"
-            android:parentActivityName="com.example.srcwh.MainActivity">
+            android:parentActivityName="com.example.srcwh.MainActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait">
 
             <!-- Enable back button functionality -->
             <meta-data

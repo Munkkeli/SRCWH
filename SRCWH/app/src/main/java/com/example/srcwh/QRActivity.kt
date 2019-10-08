@@ -18,11 +18,7 @@ import com.google.android.gms.vision.barcode.BarcodeDetector
 import kotlinx.android.synthetic.main.activity_qr.*
 import android.app.Activity
 import android.content.Intent
-import androidx.core.app.ComponentActivity.ExtraData
-import androidx.core.content.ContextCompat.getSystemService
-import android.icu.lang.UCharacter.GraphemeClusterBreak.T
-
-
+import android.view.WindowManager
 
 class QRActivity : AppCompatActivity() {
     private val CAMERA_PERMISSION_REQUEST_CODE = 2
@@ -42,6 +38,12 @@ class QRActivity : AppCompatActivity() {
         surfaceView = qr_view
         textView = qr_text
 
+        // Make status and navigation bars transparent
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+        )
+
         barcodeDetector = BarcodeDetector.Builder(this).setBarcodeFormats(Barcode.QR_CODE).build()
         barcodeDetector.setProcessor(object : Detector.Processor<Barcode> {
             override fun release() {}
@@ -52,10 +54,6 @@ class QRActivity : AppCompatActivity() {
                     Log.d("QR", "Found ${barcodeList.size()} barcode(s)")
 
                     val qr = barcodeList.valueAt(0).rawValue
-
-                    Log.d("QR", qr)
-
-                    Log.d("QR", "Accepted ${QR_REGEX.toRegex().matches(qr)}")
 
                     // Make sure the QR code is legit
                     if (QR_REGEX.toRegex().matches(qr)) {

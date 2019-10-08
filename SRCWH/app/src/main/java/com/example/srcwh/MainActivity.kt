@@ -8,35 +8,26 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.app.PendingIntent
 import android.graphics.Canvas
-import android.graphics.Rect
+import android.net.Uri
 import android.util.Log
-import com.example.srcwh.dialog.DialogAction
-import com.example.srcwh.dialog.DialogHandler
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.srcwh.dialog.DialogInitialState
 import kotlinx.android.synthetic.main.activity_main.*
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
+import android.view.WindowManager
 import androidx.appcompat.widget.Toolbar
 import com.google.android.material.appbar.SubtitleCollapsingToolbarLayout
 import java.time.ZonedDateTime
 import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.core.app.ComponentActivity.ExtraData
-import androidx.core.content.ContextCompat.getSystemService
-import android.icu.lang.UCharacter.GraphemeClusterBreak.T
-
-
+import com.google.android.material.snackbar.Snackbar
 
 class MainActivity : AppCompatActivity() {
     private lateinit var nfcAdapter: NfcAdapter
     private lateinit var pendingIntent: PendingIntent
     private lateinit var schedule: List<ClientSchedule>
     private lateinit var networkHandler: NetworkHandler
-    private lateinit var dialogHandler: DialogHandler
-
-    private lateinit var locationHandler: LocationHandler
+    private lateinit var attendHandler: AttendHandler
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,7 +36,7 @@ class MainActivity : AppCompatActivity() {
 
         // Setup prominent toolbar
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
-        var collapsingToolbar =
+        val collapsingToolbar =
             findViewById<SubtitleCollapsingToolbarLayout>(R.id.collapsing_toolbar)
         toolbar.title = "Schedule"
         collapsingToolbar.title = "Schedule"
@@ -79,15 +70,11 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // setup the nfc reader
+        // Setup the NFC reader
         setupNfc()
 
-        // Setup location handler
-        locationHandler = LocationHandler(this)
-
-        dialogHandler = DialogHandler(this, supportFragmentManager)
-
-        // settings_button.setOnClickListener { view -> openSettings()}
+        // Setup attend handler
+        attendHandler = AttendHandler(this, supportFragmentManager)
 
         // if the application was opened via nfc reader, this gets called
         if (intent != null) {
@@ -137,95 +124,13 @@ class MainActivity : AppCompatActivity() {
         return subtitle
     }
 
-    private fun showAlertDialog(
-        slabId: String,
-        confirmUpdate: Boolean = false,
-        confirmOverride: Boolean = false,
-        comingFromExplain: Boolean = false
-    ) {
-        val user = DatabaseObj.getUserData()
-
-        locationHandler.getCoordinates(comingFromExplain) { error, coordinates ->
-            Log.d("LOCATION", "Test done ${error} ${coordinates}")
-
-            if (error != null || coordinates == null) {
-                // Did not get the location
-                when (error) {
-                    LocationError.DENIED -> dialogHandler.open(DialogInitialState.POSITION_ERROR)
-                    LocationError.BLOCKED -> dialogHandler.open(DialogInitialState.POSITION_BLOCK_ERROR)
-                    LocationError.EXPLAIN -> dialogHandler.open(DialogInitialState.POSITION_ERROR) { action ->
-                        dialogHandler.close()
-                        if (action == DialogAction.PRIMARY) {
-                            showAlertDialog(slabId, confirmUpdate, confirmOverride, true)
-                        } else {
-                            dialogHandler.close()
-                        }
-                    }
-                    else -> dialogHandler.open(DialogInitialState.ERROR) // TODO: Maybe error page is required?
-                }
-            } else {
-                // Did get a location
-                dialogHandler.open()
-
-                val networkHandler = NetworkHandler()
-                networkHandler.postAttend(
-                    user!!.token!!,
-                    slabId,
-                    coordinates,
-                    confirmUpdate,
-                    confirmOverride
-                ) { error, location, lesson ->
-                    Log.d("CHECKIN", "Doned $error")
-
-                    if (error != null) {
-                        when (error) {
-                            AttendError.LESSON -> dialogHandler.setErrorLesson()
-                            AttendError.LOCATION -> dialogHandler.setConfirm(
-                                location,
-                                lesson
-                            ) { action ->
-                                if (action == DialogAction.PRIMARY) {
-                                    showAlertDialog(
-                                        slabId,
-                                        confirmUpdate = confirmUpdate,
-                                        confirmOverride = true
-                                    )
-                                } else {
-                                    dialogHandler.close()
-                                }
-                            }
-                            AttendError.POSITION -> dialogHandler.setErrorPosition(lesson)
-                            AttendError.UPDATE -> dialogHandler.setOverride(
-                                location,
-                                lesson
-                            ) { action ->
-                                if (action == DialogAction.PRIMARY) {
-                                    showAlertDialog(
-                                        slabId,
-                                        confirmUpdate = true,
-                                        confirmOverride = confirmOverride
-                                    )
-                                } else {
-                                    dialogHandler.close()
-                                }
-                            }
-                            else -> dialogHandler.setError()
-                        }
-                    } else {
-                        dialogHandler.setAttended(location, lesson)
-                    }
-                }
-            }
-        }
-    }
-
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<String>,
         grantResults: IntArray
     ) {
-        // Check for location results
-        locationHandler.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        // Pass on to attend handler
+        attendHandler.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -238,7 +143,8 @@ class MainActivity : AppCompatActivity() {
                 Log.d("QR", "Returned to main activity with $qr")
 
                 val slabId = qr.toString().replace("$BASE_URL/qr/", "")
-                showAlertDialog(slabId)
+
+                attendHandler.attend(slabId)
             }
         }
     }
@@ -295,7 +201,8 @@ class MainActivity : AppCompatActivity() {
     // setupNfc fetches the default NFC -adapter.
     private fun setupNfc() {
         nfcAdapter = NfcAdapter.getDefaultAdapter(this)
-        if (!nfcAdapter.isEnabled) showSnackbar(R.string.snackbar_no_nfc)
+
+        // if (!nfcAdapter.isEnabled) showSnackbar(R.string.snackbar_no_nfc)
 
         // pendingIntent is constantly scanning for nfc tags while on the main page
         pendingIntent = PendingIntent.getActivity(
@@ -333,7 +240,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        dividerItemDecoration.setDrawable(getDrawable(R.drawable.list_divider)!!)
+        dividerItemDecoration.setDrawable(getDrawable(R.drawable.item_lesson_divider)!!)
         recyclerview_main.addItemDecoration(dividerItemDecoration)
     }
 
@@ -342,15 +249,29 @@ class MainActivity : AppCompatActivity() {
         // so again, just to check that the nfc tag has some ndef data
         // because the ndef holds multiple points of data, we tell here that this one bytestream is the id data.
         // it's easy to configure when writing the nfc slab. (make the "app opening" to be first datapoint, and the id the second)
+
         if (intent.action == NfcAdapter.ACTION_NDEF_DISCOVERED) {
             val msg =
                 intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES)[0] as NdefMessage
             val nfc_id = String(msg.records[1].payload.drop(3).toByteArray())
-            println("KIKKEL " + nfc_id)
 
-            if (!dialogHandler.isOpen) showAlertDialog(nfc_id)
+            if (!attendHandler.isOpen) attendHandler.attend(nfc_id)
+        } else if (intent.action == Intent.ACTION_VIEW) {
+            val data: Uri? = intent.data
+            val qr = data.toString()
+
+            if (QR_REGEX.toRegex().matches(qr)) {
+                val slabId = qr.replace("$BASE_URL/qr/", "")
+                attendHandler.attend(slabId)
+            } else {
+                Snackbar.make(
+                    findViewById(android.R.id.content),
+                    "Unknown tag ID",
+                    Snackbar.LENGTH_LONG
+                ).show()
+            }
         } else {
-            // for some reason the incomint intent.action is not the one we want
+            // for some reason the incoming intent.action is not the one we want
             return
         }
     }
@@ -381,11 +302,4 @@ class MainActivity : AppCompatActivity() {
         val activityIntent = Intent(this, SettingsActivity::class.java)
         startActivity(activityIntent)
     }
-
-
-    private fun showSnackbar(stringInt: Int) {
-        // val coordinator = this.findViewById<CoordinatorLayout>(R.id.coordinator_layout)
-        // Snackbar.make(coordinator, stringInt, Snackbar.LENGTH_LONG).show()
-    }
-
 }

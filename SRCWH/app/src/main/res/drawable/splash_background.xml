@@ -16,5 +16,5 @@
         android:width="600dp"
         android:height="600dp"
         android:bottom="-100dp"
-        android:drawable="@drawable/metropolia_logo_shape" />
+        android:drawable="@drawable/ic_logo_metropolia_shape" />
 </layer-list>
