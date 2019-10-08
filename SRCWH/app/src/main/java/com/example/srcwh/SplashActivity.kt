@@ -17,7 +17,7 @@ class SplashActivity : AppCompatActivity() {
         if(settings == null){
             // no settings implemented yet, insert basic settings
             Log.d("SPLASH", "settings null")
-            DatabaseObj.addSettingsToDatabase(AppSettings(1, 0))
+            DatabaseObj.initDefaultSettings()
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         }else{
             // settings were found, change the app theme

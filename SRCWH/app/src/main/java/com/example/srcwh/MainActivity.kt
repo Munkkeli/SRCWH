@@ -1,12 +1,15 @@
 package com.example.srcwh
 
 import android.app.Activity
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Intent
 import android.nfc.NdefMessage
 import android.nfc.NfcAdapter
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.app.PendingIntent
+import android.content.Context
 import android.graphics.Canvas
 import android.net.Uri
 import android.util.Log
@@ -15,12 +18,14 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.activity_main.*
 import android.view.Menu
 import android.view.MenuItem
-import android.view.WindowManager
 import androidx.appcompat.widget.Toolbar
 import com.google.android.material.appbar.SubtitleCollapsingToolbarLayout
 import java.time.ZonedDateTime
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.google.android.material.snackbar.Snackbar
+import android.os.Build
+import androidx.work.*
+import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
     private lateinit var nfcAdapter: NfcAdapter
@@ -70,7 +75,10 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Setup the NFC reader
+        // setup the notification channel
+        createNotificationChannel()
+
+        // setup the nfc reader
         setupNfc()
 
         // Setup attend handler
@@ -163,6 +171,12 @@ class MainActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         nfcAdapter.disableForegroundDispatch(this)
+
+        // start the worker for background schedule fetching
+        if(DatabaseObj.getSettingsData()!!.allowNotifications){
+            startWork()
+        }
+
     }
 
 
@@ -301,5 +315,41 @@ class MainActivity : AppCompatActivity() {
     private fun openSettings() {
         val activityIntent = Intent(this, SettingsActivity::class.java)
         startActivity(activityIntent)
+    }
+
+    private fun startWork(){
+        val work = createWorkRequest(Data.EMPTY)
+        WorkManager.getInstance().enqueueUniquePeriodicWork("Schedule Update Work", ExistingPeriodicWorkPolicy.REPLACE, work)
+    }
+
+    private fun createConstraints() = Constraints.Builder()
+        .setRequiredNetworkType(NetworkType.CONNECTED)
+        .setRequiresBatteryNotLow(true)
+        .build()
+
+    private fun createWorkRequest(data: Data)= PeriodicWorkRequestBuilder<BackgroundWorker>(15, TimeUnit.MINUTES)
+        .setInputData(data)
+        .setConstraints(createConstraints())
+        .setBackoffCriteria(BackoffPolicy.LINEAR, PeriodicWorkRequest.MIN_BACKOFF_MILLIS, TimeUnit.MILLISECONDS)
+        .build()
+
+
+
+    private fun showSnackbar(stringInt: Int) {
+        // val coordinator = this.findViewById<CoordinatorLayout>(R.id.coordinator_layout)
+        // Snackbar.make(coordinator, stringInt, Snackbar.LENGTH_LONG).show()
+    }
+
+    private fun createNotificationChannel(){
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            val channel = NotificationChannel(
+                NOTIF_CHANNEL_ID,
+                NOTIF_CHANNEL_NAME,
+                NotificationManager.IMPORTANCE_DEFAULT
+            )
+
+            val notificaitonManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificaitonManager.createNotificationChannel(channel)
+        }
     }
 }

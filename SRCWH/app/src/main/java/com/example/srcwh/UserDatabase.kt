@@ -45,7 +45,8 @@ data class Schedule(
 data class AppSettings(
     @PrimaryKey
     val id: Int,
-    val darkMode: Int
+    var darkMode: Int,
+    var allowNotifications: Boolean
 )
 
 data class ClientSchedule(
@@ -59,6 +60,13 @@ data class ClientSchedule(
     val teacherList: List<String>,
     val id: String,
     val attended: String?
+)
+
+@Entity
+data class Notification(
+    @PrimaryKey
+    val lectureID: String,
+    var notification: Boolean
 )
 
 // technically this is enough, we can always just fetch the person and check for whatever it is that we need
@@ -102,12 +110,28 @@ interface SettingsDao{
     fun insert(settings: AppSettings)
 }
 
+@Dao
+interface NotificationDao{
+    @Query("SELECT * FROM Notification")
+    fun getNotifications(): List<Notification>?
 
-@Database(entities = [User::class, Schedule::class, AppSettings::class], version = 1, exportSchema = false)
+    @Update
+    fun update(notification: Notification)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insert(notification: Notification)
+
+    @Query("SELECT notification FROM Notification WHERE lectureID LIKE :id")
+    fun notificationAlreadySent(id: String): Boolean?
+}
+
+
+@Database(entities = [User::class, Schedule::class, AppSettings::class, Notification::class], version = 1, exportSchema = false)
 abstract class UserDatabase : RoomDatabase(){
     abstract fun userDao(): UserDao
     abstract fun scheduleDao(): ScheduleDao
     abstract fun settingsDao(): SettingsDao
+    abstract fun notificationDao(): NotificationDao
 
     companion object{
         private var sInstance: UserDatabase? = null

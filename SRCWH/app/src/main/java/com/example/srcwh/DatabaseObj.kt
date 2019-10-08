@@ -13,6 +13,7 @@ object DatabaseObj {
     private var dataBase: UserDatabase? = null
     // user is the userdata clientside, stored in a variable that can be reached easily app-wide
     lateinit var user: ClientUser
+    lateinit var settings: AppSettings
 
     val isConnected
         get() = dataBase != null
@@ -21,15 +22,16 @@ object DatabaseObj {
         dataBase = UserDatabase.get(context)
     }
 
+    fun initDefaultSettings(){
+        settings = AppSettings(0, 0, true)
+        dataBase!!.settingsDao().insert(settings)
+    }
+
     fun addUserToDatabase(_user: User){
         user = parseToClientUser(_user)
         doAsync {
             dataBase!!.userDao().insert(_user)
         }
-    }
-
-    fun addSettingsToDatabase(settings: AppSettings){
-        dataBase!!.settingsDao().insert(settings)
     }
 
     fun getUserData() : ClientUser?{
@@ -41,22 +43,26 @@ object DatabaseObj {
     }
 
     fun getSettingsData(): AppSettings?{
-        return dataBase!!.settingsDao().getSettings()
+        settings = dataBase!!.settingsDao().getSettings()
+        return settings
     }
 
     fun updateUserdata(): Int{
         return dataBase!!.userDao().update(parseToDatabaseUser(user))
     }
 
-    fun updateSettingsData(state: Int){
-        Log.d("APP_SETTINGS", "updating darkmode settings witht the value of $state")
-        dataBase!!.settingsDao().update(AppSettings(1, state))
+    fun updateSettingsData(_settings: AppSettings){
+        dataBase!!.settingsDao().update(_settings)
     }
 
     fun addScheduleToDatabase(lesson: ScheduleResponse){
         // first convert the lesson into a proper format
         // then insert into database
         dataBase!!.scheduleDao().insert(parseToDatabaseSchedule(lesson))
+    }
+
+    fun checkNotification(id: String) : Boolean?{
+        return dataBase!!.notificationDao().notificationAlreadySent(id)
     }
 
     fun getSchedule(): List<ClientSchedule>?{

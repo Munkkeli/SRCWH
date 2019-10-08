@@ -38,6 +38,7 @@ class SettingsActivity : AppCompatActivity(), View.OnClickListener,  AdapterView
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
 
         dark_mode_switch.setOnClickListener(this)
+        notifications_enabled_switch.setOnClickListener(this)
         location_permission_switch.setOnClickListener(this)
         logout_button.setOnClickListener(this)
         group_select_spinner.onItemSelectedListener = this
@@ -54,6 +55,7 @@ class SettingsActivity : AppCompatActivity(), View.OnClickListener,  AdapterView
     override fun onClick(view: View?) {
        when(view){
            dark_mode_switch-> darkModeSwitch()
+           notifications_enabled_switch -> notificationsSwitch()
            location_permission_switch -> enableLocationPermission()
            logout_button -> logout()
        }
@@ -94,15 +96,23 @@ class SettingsActivity : AppCompatActivity(), View.OnClickListener,  AdapterView
 
     private fun darkModeSwitch(){
         // the switch was interacted with, check if on/off and act accordingly
-        Log.d("APP_SETTINGS", "for some reason, the settings are not updated. the current value for nightmode is: ${DatabaseObj.getSettingsData()}")
+        val settings = DatabaseObj.settings
         if(dark_mode_switch.isChecked){
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-            DatabaseObj.updateSettingsData(1)
+            settings.darkMode = 1
         }else{
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-            DatabaseObj.updateSettingsData(0)
+            settings.darkMode = 0
         }
+
+        DatabaseObj.updateSettingsData(settings)
       //  recreate()
+    }
+
+    private fun notificationsSwitch(){
+        val settings = DatabaseObj.settings
+        settings.allowNotifications = notifications_enabled_switch.isChecked
+        DatabaseObj.updateSettingsData(settings)
     }
 
     private fun logout(){
@@ -116,6 +126,7 @@ class SettingsActivity : AppCompatActivity(), View.OnClickListener,  AdapterView
         // switches to correct position
         location_permission_switch.isChecked = switchSetup(location_permission_switch)
         dark_mode_switch.isChecked = switchSetup(dark_mode_switch)
+        notifications_enabled_switch.isChecked = switchSetup(notifications_enabled_switch)
 
         // populate the spinner and select the correct group as a chosen group
         val adapterGroups = ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, DatabaseObj.user.groupList.toList())
@@ -137,6 +148,7 @@ class SettingsActivity : AppCompatActivity(), View.OnClickListener,  AdapterView
                 Configuration.UI_MODE_NIGHT_YES -> true
                 else -> false
             }
+            notifications_enabled_switch -> return DatabaseObj.getSettingsData()!!.allowNotifications
             else -> false
         }
     }
