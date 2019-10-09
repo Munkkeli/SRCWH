@@ -85,7 +85,9 @@ class BackgroundWorker(context: Context, workerParameters: WorkerParameters): Wo
     private fun createNotification(lesson: ClientSchedule){
         Log.d("WORKER", "creating a notification!")
 
-        val testID = 6969
+
+        val notifID = lesson.id.hashCode()
+        Log.d("WORKER", "hash: $notifID")
 
         val intent = Intent(applicationContext, MainActivity::class.java)
         val pendingIntent : PendingIntent = PendingIntent.getActivity(applicationContext, 0, intent, 0)
@@ -102,7 +104,7 @@ class BackgroundWorker(context: Context, workerParameters: WorkerParameters): Wo
             .setAutoCancel(true)
 
         with(NotificationManagerCompat.from(applicationContext)){
-            notify(testID, builder.build())
+            notify(notifID, builder.build())
         }
 
         DatabaseObj.insertNotification(Notification(lesson.id, true))
