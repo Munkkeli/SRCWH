@@ -28,9 +28,9 @@ class BackgroundWorker(context: Context, workerParameters: WorkerParameters): Wo
         Log.d("WORKER", "data fetched :-)")
 
         // if there is a schedule
-        if(schedule != null){
+        if (schedule != null) {
 
-            for(lesson in schedule){
+            for (lesson in schedule){
 
                 // check if the lesson is ongoing
                 when(determineLessonStatus(lesson)){
@@ -38,6 +38,8 @@ class BackgroundWorker(context: Context, workerParameters: WorkerParameters): Wo
 
                         // check if it has already been notified and the time is right
                         val notifState = DatabaseObj.checkNotification(lesson.id)
+
+                        Log.d("WORKER", "notifState $notifState")
 
                         when(notifState){
                             null ->{
@@ -47,21 +49,16 @@ class BackgroundWorker(context: Context, workerParameters: WorkerParameters): Wo
                             }
                             true -> {
                                 // the notification has already been sent
-                                return
                             }
                         }
                     }
-                    else -> return
+                    else -> {}
                 }
-
             }
         }
 
-
-
-
         // check with lesson id if the notification has already been sent
-     //   val sent = DatabaseObj.checkNotification()
+        //   val sent = DatabaseObj.checkNotification()
     }
 
     private fun determineLessonStatus(lesson: ClientSchedule): LessonState{
@@ -95,7 +92,7 @@ class BackgroundWorker(context: Context, workerParameters: WorkerParameters): Wo
         val notificationText = applicationContext.getString(R.string.notification_text, lesson.name, lesson.address )
         val notificationTitle = applicationContext.getString(R.string.notification_title)
         val builder = NotificationCompat.Builder(applicationContext, NOTIF_CHANNEL_ID)
-            .setSmallIcon(R.mipmap.ic_launcher_round)
+            .setSmallIcon(R.drawable.ic_stat_notification_icon)
             .setContentTitle(notificationTitle)
             .setContentText(lesson.name)
             .setStyle(NotificationCompat.BigTextStyle().bigText(notificationText))

@@ -66,7 +66,8 @@ class DialogHandler {
         dialogContainerFragment!!.close()
     }
 
-    fun setAttended(location: String?, lesson: ScheduleResponse?) {
+    fun setAttended(location: String?, lesson: ScheduleResponse?, callback: ActionCallback? = null) {
+        if (callback != null) currentActionHandler = callback
         dialogContainerFragment!!.setAttended(location, lesson)
     }
 

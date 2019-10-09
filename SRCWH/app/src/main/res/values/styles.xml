@@ -42,7 +42,14 @@
     </style>
 
     <style name="QRTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Make the camera preview fill the entire screen -->
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:fitsSystemWindows">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+
+        <!-- Make status bar 100% transparent -->
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 
     <style name="AppTheme.NoActionBar">

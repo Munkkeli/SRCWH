@@ -94,6 +94,7 @@
         <!-- Scan QR screen -->
         <activity
             android:name=".QRActivity"
+            android:parentActivityName="com.example.srcwh.MainActivity"
             android:theme="@style/QRTheme"
             android:configChanges="orientation"
             android:screenOrientation="portrait" />

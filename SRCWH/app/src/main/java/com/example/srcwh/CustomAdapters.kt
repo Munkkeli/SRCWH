@@ -22,7 +22,7 @@ enum class LessonState {
     UPCOMING,
 }
 
-class MainAdapter(val context: Context, val schedule: List<ClientSchedule>?) :
+class MainAdapter(val context: Context, var schedule: List<ClientSchedule>?) :
     RecyclerView.Adapter<CustomViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CustomViewHolder {

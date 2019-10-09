@@ -87,7 +87,11 @@ class AttendHandler(private val context: Context, fragmentManager: FragmentManag
                             else -> dialogHandler.setError()
                         }
                     } else {
-                        dialogHandler.setAttended(location, lesson)
+                        // Successfully attended
+                        dialogHandler.setAttended(location, lesson) {
+                            (context as MainActivity).updateSchedule()
+                            dialogHandler.close()
+                        }
                     }
                 }
             }

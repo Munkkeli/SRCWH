@@ -48,24 +48,25 @@ class MainActivity : AppCompatActivity() {
         collapsingToolbar.subtitle = ""
         setSupportActionBar(toolbar)
 
-        // Make sure DB is connected
-        if (!DatabaseObj.isConnected) DatabaseObj.initDatabaseConnection(this)
-
-        // Set toolbar subtitle
-        collapsingToolbar.subtitle = getSubtitleText(DatabaseObj.getSchedule())
-
-        DatabaseObj.user = DatabaseObj.getUserData()!!
-        networkHandler = NetworkHandler()
-        networkHandler.getSchedule { generateView() }
         // first thing, we need to establish the database connection, and check if current userdata exists
         // getUserData() both initiates the database connection, and returns an user -object IF one exists.
         // if the user object is null, then there was no data. (usually meaning first time user)
+        if (!DatabaseObj.isConnected) DatabaseObj.initDatabaseConnection(this)
+        DatabaseObj.user = DatabaseObj.getUserData()!!
 
+        // Load schedule from DB cache
+        schedule = DatabaseObj.getSchedule() ?: listOf()
+        generateView(schedule)
+
+        // Set toolbar subtitle
+        collapsingToolbar.subtitle = getSubtitleText(schedule)
+
+        networkHandler = NetworkHandler()
 
         // Check if the login token is still valid
         networkHandler.getTokenValid { valid ->
             if (!valid) {
-                DatabaseObj.clearAllData() // TODO: Only clear login...
+                DatabaseObj.clearAllData()
 
                 // Navigate to login
                 val intent = Intent(this, LoginActivity::class.java)
@@ -108,7 +109,7 @@ class MainActivity : AppCompatActivity() {
             return getString(R.string.toolbar_subtitle_none)
         }
 
-        val now = ZonedDateTime.now()
+        val now = Controller.time
         val scheduleLeft = schedule.filter { lesson -> now.isBefore(lesson.start) }
 
         if (scheduleLeft.isEmpty()) {
@@ -130,6 +131,16 @@ class MainActivity : AppCompatActivity() {
         }
 
         return subtitle
+    }
+
+    fun updateSchedule() {
+        networkHandler.getSchedule {
+            schedule = DatabaseObj.getSchedule() ?: listOf()
+            (recyclerview_main.adapter as MainAdapter).schedule = schedule
+            recyclerview_main.adapter?.notifyDataSetChanged()
+
+            Log.d("SCHEDULE", "Schedule updated from API")
+        }
     }
 
     override fun onRequestPermissionsResult(
@@ -164,8 +175,7 @@ class MainActivity : AppCompatActivity() {
         nfcAdapter.enableForegroundDispatch(this, pendingIntent, null, null)
 
         // also as a potato solution we have to get the new schedule, since the group might have been changed
-        networkHandler.getSchedule { generateView() }
-        recyclerview_main.adapter?.notifyDataSetChanged()
+        updateSchedule()
     }
 
     override fun onPause() {
@@ -224,11 +234,11 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    private fun generateView() {
+    private fun generateView(schedule: List<ClientSchedule>) {
         val layoutManager = LinearLayoutManager(this)
         recyclerview_main.layoutManager = layoutManager
         recyclerview_main.addOnScrollListener(scrollListener)
-        recyclerview_main.adapter = MainAdapter(this, DatabaseObj.getSchedule())
+        recyclerview_main.adapter = MainAdapter(this, schedule)
 
         // Create custom divider for recycler view
         val dividerItemDecoration = object : DividerItemDecoration(

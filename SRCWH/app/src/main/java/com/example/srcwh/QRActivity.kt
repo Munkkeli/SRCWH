@@ -5,8 +5,6 @@ import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.view.SurfaceHolder
-import android.view.SurfaceView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
@@ -17,8 +15,19 @@ import com.google.android.gms.vision.barcode.Barcode
 import com.google.android.gms.vision.barcode.BarcodeDetector
 import kotlinx.android.synthetic.main.activity_qr.*
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
-import android.view.WindowManager
+import android.graphics.Color
+import android.util.AttributeSet
+import android.view.*
+import androidx.appcompat.widget.Toolbar
+import androidx.core.view.ViewCompat
+import android.util.DisplayMetrics
+import androidx.core.app.ComponentActivity.ExtraData
+import androidx.core.content.ContextCompat.getSystemService
+import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+
+
 
 class QRActivity : AppCompatActivity() {
     private val CAMERA_PERMISSION_REQUEST_CODE = 2
@@ -38,11 +47,12 @@ class QRActivity : AppCompatActivity() {
         surfaceView = qr_view
         textView = qr_text
 
-        // Make status and navigation bars transparent
-        window.setFlags(
-            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
-            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
-        )
+        // Setup toolbar
+        val toolbar = findViewById<Toolbar>(R.id.qr_toolbar)
+        toolbar.title = "Scan QR code"
+        setSupportActionBar(toolbar)
+        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+        supportActionBar!!.setDisplayShowTitleEnabled(false)
 
         barcodeDetector = BarcodeDetector.Builder(this).setBarcodeFormats(Barcode.QR_CODE).build()
         barcodeDetector.setProcessor(object : Detector.Processor<Barcode> {
@@ -70,7 +80,7 @@ class QRActivity : AppCompatActivity() {
 
         cameraSource =
             CameraSource.Builder(this, barcodeDetector)
-                .setRequestedPreviewSize(1024, 768)
+                .setRequestedPreviewSize(800, 400)
                 .setRequestedFps(24f)
                 .setAutoFocusEnabled(true)
                 .build()
