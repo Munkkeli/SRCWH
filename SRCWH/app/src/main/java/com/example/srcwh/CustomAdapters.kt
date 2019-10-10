@@ -85,7 +85,7 @@ class MainAdapter(val context: Context, var schedule: List<ClientSchedule>?) :
             LessonState.ONGOING -> {
                 val color = getColor(context, R.color.colorSuccess)
                 holder.view.card_state.background.setTint(color)
-                holder.view.card_state.background.alpha = 192
+                holder.view.card_state.background.alpha = 235
                 holder.view.card_state.text = context.getString(R.string.lesson_state_ongoing)
                 animateState(context, holder.view.card_state)
             }
@@ -97,7 +97,7 @@ class MainAdapter(val context: Context, var schedule: List<ClientSchedule>?) :
             LessonState.MISSED -> {
                 val color = getColor(context, R.color.colorAccent)
                 holder.view.card_state.background.setTint(color)
-                holder.view.card_state.background.alpha = 192
+                holder.view.card_state.background.alpha = 235
                 holder.view.card_state.text = context.getString(R.string.lesson_state_missed)
             }
             LessonState.UPCOMING -> {
@@ -106,7 +106,7 @@ class MainAdapter(val context: Context, var schedule: List<ClientSchedule>?) :
         }
 
         if (Controller.time.isAfter(lesson.end)) {
-            holder.view.alpha = 0.75f
+            // holder.view.alpha = 0.8f
         }
 
         // Open Google Maps and search for address
