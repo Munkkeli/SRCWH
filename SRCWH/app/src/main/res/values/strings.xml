@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SRCWH</string>
+    <string name="app_name">Check It</string>
     <string name="snackbar_no_nfc">No NFC detected, check if turned off</string>
     <string name="nfc_no_action">Something went wrong with reading the NFC tag, try again!</string>
     <string name="loading">Loading</string>
