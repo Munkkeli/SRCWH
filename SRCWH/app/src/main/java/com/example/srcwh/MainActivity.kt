@@ -183,7 +183,7 @@ class MainActivity : AppCompatActivity() {
         nfcAdapter.disableForegroundDispatch(this)
 
         // start the worker for background schedule fetching
-        if(DatabaseObj.getSettingsData()!!.allowNotifications){
+        if(DatabaseObj.getSettingsData().allowNotifications){
             startWork()
         }
 

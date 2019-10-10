@@ -1,7 +1,6 @@
 package com.example.srcwh.dialog
 
 import android.util.Log
-import android.view.View
 import android.view.accessibility.AccessibilityEvent
 import androidx.fragment.app.Fragment
 import com.example.srcwh.*

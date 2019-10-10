@@ -45,20 +45,25 @@ class MainAdapter(val context: Context, var schedule: List<ClientSchedule>?) :
 
         holder.view.card_title.text = lesson.name
         holder.view.card_subtitle.text = subtitle
+        holder.view.card_subtitle.contentDescription =
+            "From, ${dateTimeFormatter(lesson.start)}, to, ${dateTimeFormatter(lesson.end)}"
+        holder.view.card_address.text = lesson.address
 
         holder.view.card_location.text = HtmlCompat.fromHtml(
             lesson.locationList.joinToString("<br />"),
             HtmlCompat.FROM_HTML_MODE_LEGACY
         )
 
-        val icon = when(lessonState) {
+        holder.view.card_location.contentDescription = "Held in, ${lesson.locationList.joinToString(", or, ")}"
+
+        val icon = when (lessonState) {
             LessonState.ATTENDED -> R.drawable.ic_checkbox_marked_circle_outline
             LessonState.MISSED -> R.drawable.ic_close_circle_outline
             else -> R.drawable.ic_radiobox_blank
         }
         holder.view.card_icon.setImageResource(icon)
 
-        when(lessonState) {
+        when (lessonState) {
             LessonState.ATTENDED -> {
                 val color = getColor(context, R.color.colorSuccess)
                 holder.view.card_icon_background.setColorFilter(color)
@@ -106,7 +111,8 @@ class MainAdapter(val context: Context, var schedule: List<ClientSchedule>?) :
 
         // Open Google Maps and search for address
         holder.view.card_button_map.setOnClickListener {
-            val uri = Uri.parse("geo:0,0?q=${lesson.address.splitToSequence(" ").joinToString("+")}")
+            val uri =
+                Uri.parse("geo:0,0?q=${lesson.address.splitToSequence(" ").joinToString("+")}")
             val intent = Intent(Intent.ACTION_VIEW, uri)
             intent.setPackage("com.google.android.apps.maps")
             startActivity(context, intent, null)

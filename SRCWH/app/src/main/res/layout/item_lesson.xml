@@ -2,7 +2,6 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -33,10 +32,10 @@
             <TextView
                 android:id="@+id/card_title"
                 style="@style/CardFontStyle"
-                android:text="Sensor Based Mobile Applications"
+                android:text="@string/app_name"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:textSize="20dp"
+                android:textSize="20sp"
                 android:textStyle="bold"
                 android:textColor="@color/colorDark"
                 android:layout_marginStart="16dp"
@@ -69,7 +68,7 @@
 
             <TextView
                 android:id="@+id/card_state"
-                android:text="ATTENDED"
+                android:text="@string/app_name"
                 android:paddingTop="1dp"
                 android:paddingBottom="1dp"
                 android:paddingLeft="6dp"
@@ -78,6 +77,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="7dp"
                 android:layout_marginStart="16dp"
+                android:accessibilityTraversalAfter="@id/card_location"
                 android:background="@drawable/item_lesson_label_background"
                 android:backgroundTint="@color/colorPrimary"
                 android:textColor="@color/colorWhite"
@@ -97,7 +97,7 @@
 
             <TextView
                 android:id="@+id/card_subtitle"
-                android:text="TX00CK66-3005 — 10:30 – 12:30"
+                android:text="@string/app_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
@@ -121,7 +121,7 @@
 
                 <TextView
                     android:id="@+id/card_location"
-                    android:text="C323"
+                    android:text="@string/app_name"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:textSize="36sp"
@@ -135,7 +135,7 @@
 
                 <TextView
                     android:id="@+id/card_address"
-                    android:text="Leiritie 1"
+                    android:text="@string/app_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="17dp"
@@ -153,7 +153,7 @@
                     android:layout_marginTop="20dp"
                     app:icon="@drawable/ic_map_search"
                     app:iconTint="@color/colorGrey"
-                    android:contentDescription="Search in Google Maps"
+                    android:contentDescription="@string/navigate_button"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 

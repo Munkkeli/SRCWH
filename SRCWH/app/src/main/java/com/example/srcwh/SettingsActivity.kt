@@ -86,9 +86,9 @@ class SettingsActivity : AppCompatActivity(), View.OnClickListener,  AdapterView
         // user wants to enable the location permissions, guide them to the Android settings -page
         if(location_permission_switch.isChecked){
             val intent = Intent()
-            intent.setAction(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+            intent.action = android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
             val uri = Uri.fromParts("package", packageName, null)
-            intent.setData(uri)
+            intent.data = uri
             startActivity(intent)
         }
 
@@ -148,7 +148,7 @@ class SettingsActivity : AppCompatActivity(), View.OnClickListener,  AdapterView
                 Configuration.UI_MODE_NIGHT_YES -> true
                 else -> false
             }
-            notifications_enabled_switch -> return DatabaseObj.getSettingsData()!!.allowNotifications
+            notifications_enabled_switch -> return DatabaseObj.getSettingsData().allowNotifications
             else -> false
         }
     }
